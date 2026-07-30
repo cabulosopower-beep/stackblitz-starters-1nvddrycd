@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+
+    <link rel="manifest" href="manifest.json">
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Controle Financeiro</title>
+
+    <link rel="stylesheet" href="css/estilo.css" />
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- ========================================= -->
+      <!-- TÍTULO -->
+      <!-- ========================================= -->
+
+      <h1>💰 Controle Financeiro</h1>
+
+      <!-- ========================================= -->
+      <!-- NOVA MOVIMENTAÇÃO -->
+      <!-- ========================================= -->
+
+      <div class="card">
+        <h3>Nova Movimentação</h3>
+
+        <form id="form">
+          <label for="descricao">Descrição</label>
+          <input type="text" id="descricao" required />
+
+          <label for="valor">Valor</label>
+          <input
+    type="text"
+    id="valor"
+    inputmode="decimal"
+    placeholder="Ex: 150,00"
+    required
+>
+
+          <label for="dataLancamento"> Data </label>
+
+          <input type="date" id="dataLancamento" required />
+
+          <label for="tipo">Tipo</label>
+
+          <select id="tipo">
+            <option value="" selected disabled>Selecione...</option>
+            <option value="despesa">Despesa</option>
+            <option value="receita">Receita</option>        
+          </select>
+
+          <label for="categoria">Categoria</label>
+
+          <select id="categoria">
+            <option value="" selected disabled>Selecione...</option>
+            <option>Alimentação</option>
+            <option>Transporte</option>
+            <option>Lazer</option>
+            <option>Moradia</option>
+            <option>Saúde</option>
+            <option>Salário</option>
+            <option>Outros</option>
+          </select>
+
+          <label for="observacao">Observação</label>
+          <input type="text" id="observacao" />
+
+          <label for="parcelado">Parcelado?</label>
+
+          <select id="parcelado">
+            <option value="" selected disabled>Selecione...</option>
+            <option value="nao">Não</option>
+            <option value="sim">Sim</option>
+          </select>
+
+          <div id="areaParcelas" class="areaParcelas">
+            <label for="parcelas"> Quantidade de Parcelas </label>
+
+            <input type="number" id="parcelas" min="2" />
+          </div>
+
+          <div class="botoes">
+            <button type="submit" class="btnSalvar">Salvar Registro</button>
+            <button type="reset" class="btnLimpar">Limpar</button>
+          </div>
+          
+          <div id="mensagem"></div>
+
+        </form>
+      </div>
+
+      <!-- ========================================= -->
+      <!-- FILTROS -->
+      <!-- ========================================= -->
+
+      <div class="card">
+        <h3>Filtro</h3>
+
+        <div class="filtro">
+          <input type="month" id="filtroMes" />
+        </div>
+      </div>
+
+      <!-- ========================================= -->
+      <!-- RESUMO -->
+      <!-- ========================================= -->
+
+      <div class="card">
+        <h3>Resumo do Mês</h3>
+
+        <div id="totalDespesasMes" class="resumo resumoDespesas">R$ 0,00</div>
+
+        <div id="totalReceitasMes" class="resumo resumoReceitas">R$ 0,00</div>
+
+        <div id="saldoMes" class="resumo saldo">R$ 0,00</div>
+
+        <div id="totalPendenteMes" class="resumo resumoPendencias">R$ 0,00</div>
+      </div>
+
+      <!-- ========================================= -->
+      <!-- HISTÓRICO -->
+      <!-- ========================================= -->
+
+      <div class="card">
+        <h3>Histórico</h3>
+
+        <input
+          type="text"
+          id="buscar"
+          class="campoBusca"
+          placeholder="Buscar registro..."
+        />
+
+        <select id="ordenacao">
+          <option value="data">Mais recente</option>
+
+          <option value="maiorValor">Maior valor</option>
+
+          <option value="menorValor">Menor valor</option>
+
+          <option value="pendente">Pendentes primeiro</option>
+        </select>
+
+        <div id="lista"></div>
+      </div>
+    </div>
+
+    <script src="js/app.js"></script>
+
+    <script>
+
+      if ("serviceWorker" in navigator) {
+      
+          navigator.serviceWorker.register("service-worker.js");
+      
+      }
+      
+      </script>
+      
+  </body>
+</html>
