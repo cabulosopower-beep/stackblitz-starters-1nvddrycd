@@ -1254,3 +1254,62 @@ function iniciarApp(){
 
 iniciarApp();
 
+/* ==========================================================
+   TEMA ESCURO
+========================================================== */
+
+const botaoTema = document.getElementById("toggleTheme");
+
+
+if(botaoTema){
+
+    botaoTema.addEventListener("click", () => {
+
+        document.body.classList.toggle("dark");
+
+
+        if(document.body.classList.contains("dark")){
+
+            localStorage.setItem(
+                "tema",
+                "dark"
+            );
+
+            botaoTema.innerText = "☀️";
+
+        }
+
+        else{
+
+            localStorage.setItem(
+                "tema",
+                "light"
+            );
+
+            botaoTema.innerText = "🌙";
+
+        }
+
+    });
+
+}
+
+
+
+/* CARREGAR TEMA SALVO */
+
+const temaSalvo =
+    localStorage.getItem("tema");
+
+
+if(temaSalvo === "dark"){
+
+    document.body.classList.add("dark");
+
+    if(botaoTema){
+
+        botaoTema.innerText = "☀️";
+
+    }
+
+}

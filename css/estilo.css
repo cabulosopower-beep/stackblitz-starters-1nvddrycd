@@ -47,6 +47,52 @@ h3 {
   margin-bottom: 15px;
 }
 
+/* =======================================================
+   BOTÃO TEMA FLUTUANTE
+======================================================= */
+
+/* =======================================================
+   BOTÃO TEMA FLUTUANTE
+======================================================= */
+
+#toggleTheme {
+
+  position: fixed;
+
+  top: 15px;
+  right: 15px;
+
+  width: 34px;
+  height: 34px;
+
+  border-radius: 50%;
+
+  font-size: 18px;
+
+  background: #2c2b2b;
+
+  color: #eee;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow: 0 3px 8px rgba(0,0,0,.20);
+
+  z-index: 9999;
+
+}
+
+
+/* Botão no tema escuro */
+
+body.dark #toggleTheme {
+
+  background: #eee;
+
+  color: #222;
+
+}
 
 /* =======================================================
  FORMULÁRIOS
@@ -211,6 +257,8 @@ button:hover {
   background:#f3f3f3;
 }
 
+
+
 /* =======================================================
  FILTROS
 ======================================================= */
@@ -305,4 +353,51 @@ button:hover {
 
 .saldo {
   color: #1565c0;
+}
+
+/* =======================================================
+   TEMA ESCURO
+======================================================= */
+
+body.dark {
+  background: #121212;
+  color: #eee;
+}
+
+body.dark .card {
+  background: #1e1e1e;
+  color: #eee;
+}
+
+body.dark input,
+body.dark select {
+  background: #2b2b2b;
+  color: #fff;
+  border-color: #555;
+}
+
+body.dark .transacao {
+  border-color: #444;
+}
+
+body.dark .info {
+  color: #bbb;
+}
+
+body.dark .btnMenu {
+  background: #333;
+  color: white;
+}
+
+body.dark .menuAcoes {
+  background: #222;
+}
+
+body.dark .menuAcoes button {
+  background: #222;
+  color: white;
+}
+
+body.dark .menuAcoes button:hover {
+  background: #333;
 }
