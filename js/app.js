@@ -73,6 +73,29 @@ const totalPendenteMes =
 const saldoMes =
     document.getElementById("saldoMes");
 
+    const saldoInicio =
+    document.getElementById("saldoInicio");
+
+const receitasInicio =
+    document.getElementById("receitasInicio");
+
+const despesasInicio =
+    document.getElementById("despesasInicio");
+
+const pendenciasInicio =
+    document.getElementById("pendenciasInicio");
+
+    const saudacaoInicio =
+    document.getElementById("saudacaoInicio");
+
+
+const mesAtualInicio =
+    document.getElementById("mesAtualInicio");
+
+
+const quantidadeInicio =
+    document.getElementById("quantidadeInicio");
+
     const campoValor = document.getElementById("valor");
 
     campoValor.addEventListener("input", function () {
@@ -410,11 +433,13 @@ form.addEventListener(
         salvarDados(dados);
 
 
-        limparFormulario();
+limparFormulario();
 
 
-        renderizar();
+atualizarInicio();
 
+
+renderizar();
 
     }
 );
@@ -568,66 +593,54 @@ function criarTransacao(item){
 
 
 
-    div.innerHTML = `
+        div.innerHTML = `
 
         <div class="linha">
-
+        
             <div>
-
+        
                 <div class="titulo">
                     ${item.descricao}
                 </div>
-
-
-                <div class="info">
-                    Categoria:
-                    ${item.categoria}
-                </div>
-
-
+        
+        
                 <div class="info">
 
-                    Obs:
+    ${item.categoria}
 
-                    <span
-                        contenteditable="true"
-                        onblur="salvarObservacao('${item.id}', this.innerText)"
-                    >
-                        ${item.observacao || ""}
-                    </span>
+    • 
 
-                </div>
+    ${new Date(item.data).toLocaleDateString("pt-BR")}
 
+    ${
+        item.parcela
+        ?
+        " • " + item.parcela
+        :
+        ""
+    }
 
-                ${
-                    item.parcela
-
-                    ?
-
-                    `
-                    <div class="info">
-                        Parcela:
-                        ${item.parcela}
-                    </div>
-                    `
-
-                    :
-
-                    ""
-                }
+</div>
 
 
-                <div class="info">
-                    ${dataHora}
-                </div>
+<div class="info observacaoCompacta">
 
+    Obs:
 
+    <span
+        class="campoObservacao"
+        contenteditable="true"
+        onblur="salvarObservacao('${item.id}', this.innerText)"
+    >${item.observacao || "Adicionar observação..."}</span>
+
+</div>
+        
             </div>
-
-
-
+        
+        
+        
             <div>
-
+        
                 <div class="${
                     item.tipo === "receita"
                     ?
@@ -635,71 +648,225 @@ function criarTransacao(item){
                     :
                     "valorDespesa"
                 }">
-
+        
                     R$ ${moeda(item.valor)}
-
+        
                 </div>
-
+        
             </div>
-
-
+        
+        
         </div>
-
-
-
+        
+        
+        
         <div class="acoesTransacao">
-
+        
         <button
             onclick="alterarStatus('${item.id}')"
             class="${
                 item.status === "pago"
-                ? "btnPago"
-                : "btnPagar"
+                ?
+                "btnPago"
+                :
+                "btnPagar"
             }"
         >
-            ${
-                item.status === "pago"
-                ? "Pago"
-                : "Pagar"
-            }
+        
+        ${
+            item.status === "pago"
+            ?
+            "Pago"
+            :
+            "Pagar"
+        }
+        
         </button>
-    
+        
+        
         <button
             class="btnMenu"
             onclick="toggleMenu('${item.id}')"
         >
-            ⋮
+        
+        ⋮
+        
         </button>
-    
+        
+        
         <div
-            class="menuAcoes"
-            id="menu-${item.id}"
+        class="menuAcoes"
+        id="menu-${item.id}"
         >
-    
-            <button onclick="editarRegistro('${item.id}')">
-                ✏️ Editar
-            </button>
-    
-            <button onclick="excluirRegistro('${item.id}')">
-                🗑️ Excluir
-            </button>
-    
-            <button onclick="excluirGrupo('${item.id}')">
-                🗑️ Excluir tudo
-            </button>
-    
+        
+        <button onclick="editarRegistro('${item.id}')">
+        ✏️ Editar
+        </button>
+        
+        <button onclick="excluirRegistro('${item.id}')">
+        🗑️ Excluir
+        </button>
+        
+        <button onclick="excluirGrupo('${item.id}')">
+        🗑️ Excluir tudo
+        </button>
+        
         </div>
+        
+        
+        </div>
+        
+        `;
+
     
-    </div>
-
-    `;
-
-
     return div;
 
 }
 
+/* ==========================================================
+   ATUALIZAR TELA INICIAL
+========================================================== */
 
+
+function atualizarInicio(){
+
+    console.log(saudacaoInicio, mesAtualInicio, quantidadeInicio);
+
+    const dados = carregarDados();
+
+
+    let receitas = 0;
+    let despesas = 0;
+    let pendentes = 0;
+
+    const agora = new Date();
+
+
+    const hora = agora.getHours();
+
+
+    let saudacao = "";
+
+
+    if(hora < 12){
+
+        saudacao = "🌅 Bom dia";
+
+    }
+
+    else if(hora < 18){
+
+        saudacao = "☀️ Boa tarde";
+
+    }
+
+    else{
+
+        saudacao = "🌙 Boa noite";
+
+    }
+
+
+
+    const mesAtual =
+        agora.toLocaleDateString(
+            "pt-BR",
+            {
+                month:"long",
+                year:"numeric"
+            }
+        );
+
+
+
+    if(saudacaoInicio){
+
+        saudacaoInicio.innerHTML =
+            saudacao;
+
+    }
+
+
+    if(mesAtualInicio){
+
+        mesAtualInicio.innerHTML =
+            "📅 " + mesAtual;
+
+    }
+
+
+    if(quantidadeInicio){
+
+        quantidadeInicio.innerHTML =
+            "📝 Lançamentos: " + dados.length;
+
+    }
+
+
+    dados.forEach(item => {
+
+
+        if(item.tipo === "receita"){
+
+            receitas += Number(item.valor);
+
+        }
+
+
+        if(item.tipo === "despesa"){
+
+            despesas += Number(item.valor);
+
+
+            if(item.status === "pendente"){
+
+                pendentes += Number(item.valor);
+
+            }
+
+        }
+
+
+    });
+
+
+    const saldo = receitas - despesas;
+
+
+
+    if(saldoInicio){
+
+        saldoInicio.innerHTML =
+            `📊 Saldo atual: R$ ${moeda(saldo)}`;
+
+    }
+
+
+    if(receitasInicio){
+
+        receitasInicio.innerHTML =
+            `💰 Receitas: R$ ${moeda(receitas)}`;
+
+    }
+
+
+    if(despesasInicio){
+
+        despesasInicio.innerHTML =
+            `💸 Despesas: R$ ${moeda(despesas)}`;
+
+    }
+
+
+    if(pendenciasInicio){
+
+        pendenciasInicio.innerHTML =
+            `⚠️ Pendentes: R$ ${moeda(pendentes)}`;
+
+    }
+
+
+}
 
 /* ==========================================================
    RENDERIZAÇÃO DO HISTÓRICO
@@ -1019,10 +1186,13 @@ function alterarStatus(id){
 
 
 
-    salvarDados(dados);
+            salvarDados(dados);
 
 
-    renderizar();
+            atualizarInicio();
+            
+            
+            renderizar();
 
 
 }
@@ -1064,10 +1234,13 @@ function excluirRegistro(id){
 
 
 
-    salvarDados(dados);
+        salvarDados(dados);
 
 
-    renderizar();
+        atualizarInicio();
+        
+        
+        renderizar();
 
 
 }
@@ -1125,10 +1298,13 @@ function excluirGrupo(id){
 
 
 
-    salvarDados(novosDados);
+        salvarDados(novosDados);
 
 
-    renderizar();
+        atualizarInicio();
+        
+        
+        renderizar();
 
 
 }
@@ -1238,8 +1414,9 @@ function iniciarApp(){
 
 
 
-    renderizar();
+        atualizarInicio();
 
+    renderizar();
 
 }
 
@@ -1258,7 +1435,7 @@ iniciarApp();
    TEMA ESCURO
 ========================================================== */
 
-const botaoTema = document.getElementById("toggleTheme");
+const botaoTema = document.getElementById("toggleThemeConfig");
 
 
 if(botaoTema){
@@ -1275,7 +1452,7 @@ if(botaoTema){
                 "dark"
             );
 
-            botaoTema.innerText = "☀️";
+            botaoTema.innerText = "☀️ Tema claro";
 
         }
 
@@ -1286,14 +1463,13 @@ if(botaoTema){
                 "light"
             );
 
-            botaoTema.innerText = "🌙";
+            botaoTema.innerText = "🌙 Tema escuro";
 
         }
 
     });
 
 }
-
 
 
 /* CARREGAR TEMA SALVO */
@@ -1308,8 +1484,248 @@ if(temaSalvo === "dark"){
 
     if(botaoTema){
 
-        botaoTema.innerText = "☀️";
+        botaoTema.innerText = "☀️ Tema claro";
+    
+    }
+
+}
+
+/* ==========================================================
+   NAVEGAÇÃO ENTRE TELAS
+========================================================== */
+
+
+
+
+    function mostrarTela(id, botao = null){
+
+        console.log("Mudando para:", id);
+    
+
+    document
+    .querySelectorAll(".tela")
+    .forEach(tela => {
+
+        tela.classList.remove("ativa");
+
+    });
+
+
+    const tela =
+        document.getElementById(id);
+
+
+    if(tela){
+
+        tela.classList.add("ativa");
 
     }
+
+
+
+    document
+    .querySelectorAll(".itemMenu")
+    .forEach(item => {
+
+        item.classList.remove("ativo");
+
+    });
+
+
+
+    if(botao){
+
+        botao.classList.add("ativo");
+
+    }
+
+    else{
+
+
+        const mapa = {
+
+            telaInicio: 0,
+
+            telaLancamentos: 1,
+
+            telaResumo: 2,
+
+            telaConfiguracoes: 3
+
+        };
+
+
+        const indice = mapa[id];
+
+
+        if(indice !== undefined){
+
+
+            document
+            .querySelectorAll(".itemMenu")[indice]
+            .classList
+            .add("ativo");
+
+
+        }
+
+    }
+
+
+}
+
+/* ==========================================================
+   BACKUP
+========================================================== */
+
+const botaoBackup =
+    document.getElementById("btnBackup");
+
+
+if(botaoBackup){
+
+    botaoBackup.addEventListener("click", () => {
+
+        const dados = carregarDados();
+
+        const arquivo =
+            JSON.stringify(
+                dados,
+                null,
+                2
+            );
+
+        const blob =
+            new Blob(
+                [arquivo],
+                {
+                    type:"application/json"
+                }
+            );
+
+        const url =
+            URL.createObjectURL(blob);
+
+        const link =
+            document.createElement("a");
+
+        link.href = url;
+
+        link.download =
+            "backup_controle_financeiro.json";
+
+        link.click();
+
+        URL.revokeObjectURL(url);
+
+    });
+
+}
+
+/* ==========================================================
+   RESTAURAR BACKUP
+========================================================== */
+
+
+const botaoRestaurar =
+    document.getElementById("btnRestaurar");
+
+
+const arquivoBackup =
+    document.getElementById("arquivoBackup");
+
+
+
+if(botaoRestaurar){
+
+
+    botaoRestaurar.addEventListener("click", () => {
+
+
+        arquivoBackup.click();
+
+
+    });
+
+
+}
+
+
+
+if(arquivoBackup){
+
+
+    arquivoBackup.addEventListener("change", (evento) => {
+
+
+        const arquivo =
+            evento.target.files[0];
+
+
+        if(!arquivo){
+
+            return;
+
+        }
+
+
+
+        const leitor =
+            new FileReader();
+
+
+
+        leitor.onload = function(e){
+
+
+            try{
+
+
+                const dados =
+                    JSON.parse(
+                        e.target.result
+                    );
+
+
+
+                salvarDados(dados);
+
+
+
+                alert(
+                    "Backup restaurado com sucesso!"
+                );
+
+
+
+                atualizarInicio();
+
+                renderizar();
+
+
+
+            }
+
+
+            catch{
+
+
+                alert(
+                    "Arquivo de backup inválido!"
+                );
+
+
+            }
+
+
+        };
+
+
+
+        leitor.readAsText(arquivo);
+
+
+    });
+
 
 }

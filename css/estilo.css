@@ -48,53 +48,6 @@ h3 {
 }
 
 /* =======================================================
-   BOTÃO TEMA FLUTUANTE
-======================================================= */
-
-/* =======================================================
-   BOTÃO TEMA FLUTUANTE
-======================================================= */
-
-#toggleTheme {
-
-  position: fixed;
-
-  top: 15px;
-  right: 15px;
-
-  width: 34px;
-  height: 34px;
-
-  border-radius: 50%;
-
-  font-size: 18px;
-
-  background: #2c2b2b;
-
-  color: #eee;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  box-shadow: 0 3px 8px rgba(0,0,0,.20);
-
-  z-index: 9999;
-
-}
-
-
-/* Botão no tema escuro */
-
-body.dark #toggleTheme {
-
-  background: #eee;
-
-  color: #222;
-
-}
-
-/* =======================================================
  FORMULÁRIOS
 ======================================================= */
 
@@ -400,4 +353,257 @@ body.dark .menuAcoes button {
 
 body.dark .menuAcoes button:hover {
   background: #333;
+}
+
+/* =======================================================
+   MENU INFERIOR
+======================================================= */
+
+.menuInferior {
+
+  position: fixed;
+
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  height: 65px;
+
+  background: #ffffff;
+
+  display: flex;
+
+  justify-content: space-around;
+
+  align-items: center;
+
+  border-top: 1px solid #ddd;
+
+  z-index: 9998;
+
+}
+
+
+.itemMenu {
+
+  background: transparent;
+
+  border: none;
+
+  color: #777;
+
+  font-size: 12px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: 4px;
+
+}
+
+
+.itemMenu.ativo {
+
+  color: #1976d2;
+
+}
+
+
+.itemMenu span {
+
+  font-size: 12px;
+
+}
+
+
+/* Espaço para o conteúdo não ficar escondido pelo menu */
+
+.container {
+
+  padding-bottom: 80px;
+
+}
+
+
+/* Tema escuro */
+
+body.dark .menuInferior {
+
+  background: #1e1e1e;
+
+  border-top-color: #444;
+
+}
+
+
+body.dark .itemMenu {
+
+  color: #aaa;
+
+}
+
+
+body.dark .itemMenu.ativo {
+
+  color: #42a5f5;
+
+}
+
+/* =======================================================
+   SISTEMA DE TELAS
+======================================================= */
+
+.tela {
+
+  display: none;
+
+}
+
+
+.tela.ativa {
+
+  display: block;
+
+}
+
+/* =======================================================
+   CABEÇALHO TELA INÍCIO
+======================================================= */
+
+
+.cabecalhoInicio {
+
+  margin-bottom: 20px;
+
+}
+
+
+.saudacao {
+
+  font-size: 24px;
+
+  font-weight: bold;
+
+  color: #1976d2;
+
+  margin-bottom: 5px;
+
+}
+
+
+.mesAtual {
+
+  font-size: 15px;
+
+  color: #666;
+
+  text-transform: capitalize;
+
+}
+
+
+.quantidade {
+
+  margin-top: 5px;
+
+  font-size: 14px;
+
+  color: #888;
+
+}
+
+/* =======================================================
+   HISTÓRICO COMPACTO
+======================================================= */
+
+.transacao {
+
+  margin-bottom: 8px;
+
+  padding: 10px;
+
+  border-radius: 12px;
+
+}
+
+
+.transacao .titulo {
+
+  font-size: 15px;
+
+}
+
+
+.transacao .info {
+
+  margin-top: 2px;
+
+  font-size: 12px;
+
+}
+
+
+.transacao .valorReceita,
+.transacao .valorDespesa {
+
+  font-size: 15px;
+
+}
+
+
+.acoesTransacao {
+
+  margin-top: 8px;
+
+}
+
+
+.acoesTransacao button {
+
+  height: 32px;
+
+}
+
+
+.btnPagar,
+.btnPago,
+.btnEditar,
+.btnExcluir {
+
+  font-size: 11px;
+
+}
+
+.observacaoCompacta {
+
+  max-width: 250px;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+}
+
+.observacaoCompacta {
+
+  max-width: 250px;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+}
+
+
+.observacaoCompacta span {
+
+  cursor: text;
+
 }

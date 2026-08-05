@@ -14,19 +14,78 @@
 
   <body>
     <div class="container">
+
+      <section id="telaInicio" class="tela ativa">
+
+        <div class="card">
+    
+            <h3>🏠 Início</h3>
+
+            <div class="cabecalhoInicio">
+
+              <div id="saudacaoInicio" class="saudacao"></div>
+          
+              <div id="mesAtualInicio" class="mesAtual"></div>
+          
+              <div id="quantidadeInicio" class="quantidade"></div>
+          
+          </div>
+    
+            <div id="resumoInicio">
+    
+                <div class="resumo saldo" id="saldoInicio">
+                    R$ 0,00
+                </div>
+    
+                <div class="resumo resumoReceitas" id="receitasInicio">
+                    R$ 0,00
+                </div>
+    
+                <div class="resumo resumoDespesas" id="despesasInicio">
+                    R$ 0,00
+                </div>
+    
+                <div class="resumo resumoPendencias" id="pendenciasInicio">
+                    R$ 0,00
+                </div>
+    
+            </div>
+    
+            <div class="botoes">
+    
+                <button
+                    class="btnSalvar"
+                    onclick="mostrarTela('telaLancamentos')">
+    
+                    ➕ Novo lançamento
+    
+                </button>
+    
+                <button
+                    class="btnEditar"
+                    onclick="mostrarTela('telaResumo')">
+    
+                    📋 Ver lançamentos
+    
+                </button>
+    
+            </div>
+    
+        </div>
+    
+    </section>
+
       <!-- ========================================= -->
       <!-- TÍTULO -->
       <!-- ========================================= -->
-
-      <button id="toggleTheme">
-        🌙
-      </button>
       
       <h1>💰 Controle Financeiro</h1>
 
       <!-- ========================================= -->
       <!-- NOVA MOVIMENTAÇÃO -->
       <!-- ========================================= -->
+
+      <section id="telaLancamentos" class="tela">
 
       <div class="card">
         <h3>Nova Movimentação</h3>
@@ -94,7 +153,9 @@
           <div id="mensagem"></div>
 
         </form>
-      </div>
+    </section>
+
+    <section id="telaResumo" class="tela">
 
       <!-- ========================================= -->
       <!-- FILTROS -->
@@ -151,6 +212,111 @@
         <div id="lista"></div>
       </div>
     </div>
+  </section>
+  <section id="telaConfiguracoes" class="tela">
+
+    <div class="card">
+
+        <h3>⚙️ Configurações</h3>
+
+
+
+
+        <button
+            class="btnEditar"
+            id="btnBackup">
+
+            💾 Fazer Backup
+
+        </button>
+
+
+        <button
+            class="btnEditar"
+            id="btnRestaurar">
+
+            📂 Restaurar Backup
+
+            <button
+    class="btnEditar"
+    id="toggleThemeConfig">
+
+    🌙 Tema escuro
+
+</button>
+
+        </button>
+
+
+        <input
+            type="file"
+            id="arquivoBackup"
+            accept=".json"
+            style="display:none;"
+        >
+
+    </div>
+
+
+    <div class="card">
+
+        <h3>ℹ️ Sobre o aplicativo</h3>
+
+        <p>
+            Controle Financeiro
+        </p>
+
+        <p>
+            Versão 1.0
+        </p>
+
+    </div>
+
+
+</section>
+
+<nav class="menuInferior">
+
+  <button
+      class="itemMenu ativo"
+      onclick="mostrarTela('telaInicio', this)">
+
+      🏠
+      <span>Início</span>
+
+  </button>
+
+
+  <button
+      class="itemMenu"
+      onclick="mostrarTela('telaLancamentos', this)">
+
+      💳
+      <span>Lançamentos</span>
+
+  </button>
+
+
+  <button
+      class="itemMenu"
+      onclick="mostrarTela('telaResumo', this)">
+
+      📊
+      <span>Resumo</span>
+
+  </button>
+
+
+  <button
+      class="itemMenu"
+      onclick="mostrarTela('telaConfiguracoes', this)">
+
+      ⚙️
+      <span>Configurações</span>
+
+  </button>
+
+</nav>
 
     <script src="js/app.js"></script>
 
