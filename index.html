@@ -12,45 +12,74 @@
     <link rel="stylesheet" href="css/estilo.css" />
   </head>
 
+      <!-- ========================================= -->
+      <!-- TÍTULO -->
+      <!-- ========================================= -->
+      
+      <h1>💰 Controle Financeiro</h1>
+
   <body>
     <div class="container">
 
       <section id="telaInicio" class="tela ativa">
 
         <div class="card">
-    
-            <h3>🏠 Início</h3>
+
 
             <div class="cabecalhoInicio">
 
-              <div id="saudacaoInicio" class="saudacao"></div>
-          
+              <div class="tituloInicio">
+                  Resumo Financeiro
+              </div>
+            
               <div id="mesAtualInicio" class="mesAtual"></div>
-          
+            
               <div id="quantidadeInicio" class="quantidade"></div>
-          
-          </div>
-    
-            <div id="resumoInicio">
-    
-                <div class="resumo saldo" id="saldoInicio">
-                    R$ 0,00
-                </div>
-    
-                <div class="resumo resumoReceitas" id="receitasInicio">
-                    R$ 0,00
-                </div>
-    
-                <div class="resumo resumoDespesas" id="despesasInicio">
-                    R$ 0,00
-                </div>
-    
-                <div class="resumo resumoPendencias" id="pendenciasInicio">
-                    R$ 0,00
-                </div>
-    
+            
             </div>
     
+            <div id="resumoInicio">
+
+    <div class="resumo saldo" id="saldoInicio">
+        📊 Saldo atual: R$ 0,00
+    </div>
+
+    <div class="resumo resumoReceitas" id="receitasInicio">
+        💰 Receitas: R$ 0,00
+    </div>
+
+    <div class="resumo resumoDespesas" id="despesasInicio">
+        💸 Despesas: R$ 0,00
+    </div>
+
+    <div class="resumo resumoPendencias" id="pendenciasInicio">
+        ⚠️ Pendentes: R$ 0,00
+    </div>
+
+</div>
+    
+<div class="card resumoInteligente">
+
+  <h3>📆 Este mês</h3>
+
+  <div id="gastosMes">
+      💸 Gastos: R$ 0,00
+  </div>
+
+  <div id="receitasMes">
+      💰 Receitas: R$ 0,00
+  </div>
+
+  <div id="resultadoMes">
+      📊 Resultado: R$ 0,00
+  </div>
+
+  <div id="maiorGasto">
+      🏆 Maior gasto: -
+  </div>
+
+</div>
+
             <div class="botoes">
     
                 <button
@@ -75,11 +104,7 @@
     
     </section>
 
-      <!-- ========================================= -->
-      <!-- TÍTULO -->
-      <!-- ========================================= -->
-      
-      <h1>💰 Controle Financeiro</h1>
+     
 
       <!-- ========================================= -->
       <!-- NOVA MOVIMENTAÇÃO -->
@@ -175,15 +200,24 @@
 
       <div class="card">
         <h3>Resumo do Mês</h3>
-
-        <div id="totalDespesasMes" class="resumo resumoDespesas">R$ 0,00</div>
-
-        <div id="totalReceitasMes" class="resumo resumoReceitas">R$ 0,00</div>
-
-        <div id="saldoMes" class="resumo saldo">R$ 0,00</div>
-
-        <div id="totalPendenteMes" class="resumo resumoPendencias">R$ 0,00</div>
-      </div>
+    
+        <div id="totalDespesasMes" class="resumo resumoDespesas">
+            💸 Despesas: R$ 0,00
+        </div>
+    
+        <div id="totalReceitasMes" class="resumo resumoReceitas">
+            💰 Receitas: R$ 0,00
+        </div>
+    
+        <div id="saldoMes" class="resumo saldo">
+            📊 Saldo: R$ 0,00
+        </div>
+    
+        <div id="totalPendenteMes" class="resumo resumoPendencias">
+            ⚠️ Pendentes: R$ 0,00
+        </div>
+    
+    </div>
 
       <!-- ========================================= -->
       <!-- HISTÓRICO -->
@@ -217,60 +251,55 @@
 
     <div class="card">
 
-        <h3>⚙️ Configurações</h3>
+      <h3>⚙️ Configurações</h3>
+  
+      <div class="listaConfig">
+  
+          <button class="itemConfig" id="btnBackup">
+              <span>💾 Fazer Backup</span>
+              <span>›</span>
+          </button>
+  
+          <button class="itemConfig" id="btnRestaurar">
+              <span>📂 Restaurar Backup</span>
+              <span>›</span>
+          </button>
+  
+          <button class="itemConfig" id="toggleThemeConfig">
+              <span>🌙 Tema Escuro</span>
+              <span>›</span>
+          </button>
+  
+      </div>
+  
+      <input
+          type="file"
+          id="arquivoBackup"
+          accept=".json"
+          style="display:none;"
+      >
+  
+  </div>
 
 
+  <div class="card">
 
+    <h3>ℹ️ Sobre</h3>
 
-        <button
-            class="btnEditar"
-            id="btnBackup">
+    <div class="sobreApp">
 
-            💾 Fazer Backup
+        <h2>💰 Controle Financeiro</h2>
 
-        </button>
+        <p>Versão 1.0</p>
 
-
-        <button
-            class="btnEditar"
-            id="btnRestaurar">
-
-            📂 Restaurar Backup
-
-            <button
-    class="btnEditar"
-    id="toggleThemeConfig">
-
-    🌙 Tema escuro
-
-</button>
-
-        </button>
-
-
-        <input
-            type="file"
-            id="arquivoBackup"
-            accept=".json"
-            style="display:none;"
-        >
-
-    </div>
-
-
-    <div class="card">
-
-        <h3>ℹ️ Sobre o aplicativo</h3>
-
-        <p>
-            Controle Financeiro
-        </p>
-
-        <p>
-            Versão 1.0
-        </p>
+        <small>
+            Aplicativo para controle de receitas, despesas,
+            parcelas e acompanhamento financeiro.
+        </small>
 
     </div>
+
+</div>
 
 
 </section>
@@ -281,7 +310,7 @@
       class="itemMenu ativo"
       onclick="mostrarTela('telaInicio', this)">
 
-      🏠
+      <div class="iconeMenu">🏠</div>
       <span>Início</span>
 
   </button>
@@ -291,7 +320,7 @@
       class="itemMenu"
       onclick="mostrarTela('telaLancamentos', this)">
 
-      💳
+      <div class="iconeMenu">💳</div>
       <span>Lançamentos</span>
 
   </button>
@@ -301,7 +330,7 @@
       class="itemMenu"
       onclick="mostrarTela('telaResumo', this)">
 
-      📊
+      <div class="iconeMenu">📊</div>
       <span>Resumo</span>
 
   </button>
@@ -311,7 +340,7 @@
       class="itemMenu"
       onclick="mostrarTela('telaConfiguracoes', this)">
 
-      ⚙️
+      <div class="iconeMenu">⚙️</div>
       <span>Configurações</span>
 
   </button>

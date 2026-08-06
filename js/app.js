@@ -85,16 +85,24 @@ const despesasInicio =
 const pendenciasInicio =
     document.getElementById("pendenciasInicio");
 
-    const saudacaoInicio =
-    document.getElementById("saudacaoInicio");
-
-
 const mesAtualInicio =
     document.getElementById("mesAtualInicio");
 
 
 const quantidadeInicio =
     document.getElementById("quantidadeInicio");
+
+    const gastosMes =
+    document.getElementById("gastosMes");
+
+const receitasMes =
+    document.getElementById("receitasMes");
+
+const resultadoMes =
+    document.getElementById("resultadoMes");
+
+const maiorGasto =
+    document.getElementById("maiorGasto");
 
     const campoValor = document.getElementById("valor");
 
@@ -730,8 +738,6 @@ function criarTransacao(item){
 
 function atualizarInicio(){
 
-    console.log(saudacaoInicio, mesAtualInicio, quantidadeInicio);
-
     const dados = carregarDados();
 
 
@@ -742,32 +748,6 @@ function atualizarInicio(){
     const agora = new Date();
 
 
-    const hora = agora.getHours();
-
-
-    let saudacao = "";
-
-
-    if(hora < 12){
-
-        saudacao = "🌅 Bom dia";
-
-    }
-
-    else if(hora < 18){
-
-        saudacao = "☀️ Boa tarde";
-
-    }
-
-    else{
-
-        saudacao = "🌙 Boa noite";
-
-    }
-
-
-
     const mesAtual =
         agora.toLocaleDateString(
             "pt-BR",
@@ -776,15 +756,6 @@ function atualizarInicio(){
                 year:"numeric"
             }
         );
-
-
-
-    if(saudacaoInicio){
-
-        saudacaoInicio.innerHTML =
-            saudacao;
-
-    }
 
 
     if(mesAtualInicio){
@@ -864,6 +835,142 @@ function atualizarInicio(){
             `⚠️ Pendentes: R$ ${moeda(pendentes)}`;
 
     }
+
+    atualizarResumoInteligente();
+
+}
+
+function atualizarResumoInteligente(){
+
+    const dados = carregarDados();
+
+
+    const hoje = new Date();
+
+
+    const mesAtual = hoje.getMonth();
+
+    const anoAtual = hoje.getFullYear();
+
+
+    let gastos = 0;
+    let receitas = 0;
+
+
+    let categorias = {};
+
+
+    dados.forEach(item => {
+
+
+        const data = new Date(item.data);
+
+
+        if(
+            data.getMonth() === mesAtual &&
+            data.getFullYear() === anoAtual
+        ){
+
+
+            if(item.tipo === "despesa"){
+
+                gastos += Number(item.valor);
+
+
+                categorias[item.categoria] =
+                (categorias[item.categoria] || 0)
+                +
+                Number(item.valor);
+
+            }
+            console.log(item.categoria, categorias);
+
+            if(item.tipo === "receita"){
+
+                receitas += Number(item.valor);
+
+            }
+
+
+        }
+
+
+    });
+
+
+    let categoriaMaior = "-";
+
+    let valorMaior = 0;
+
+    for (let categoria in categorias) {
+
+        if (categorias[categoria] > valorMaior) {
+    
+            valorMaior = categorias[categoria];
+            categoriaMaior = categoria;
+    
+        }
+    
+    }
+
+
+    for(let categoria in categorias){
+
+
+        if(categorias[categoria] > valorMaior){
+
+            valorMaior =
+                categorias[categoria];
+
+            categoriaMaior =
+                categoria;
+
+        }
+
+    }
+
+
+
+    if(gastosMes){
+
+        gastosMes.innerHTML =
+        `💸 Gastos: R$ ${moeda(gastos)}`;
+
+    }
+
+
+    if(receitasMes){
+
+        receitasMes.innerHTML =
+        `💰 Receitas: R$ ${moeda(receitas)}`;
+
+    }
+
+
+    if(resultadoMes){
+
+        resultadoMes.innerHTML =
+        `📊 Resultado: R$ ${moeda(receitas - gastos)}`;
+
+    }
+
+    console.log({
+        gastos,
+        receitas,
+        categorias,
+        categoriaMaior,
+        valorMaior
+    });
+
+
+    const cardMaiorGasto = document.getElementById("maiorGasto");
+
+if(cardMaiorGasto){
+
+    cardMaiorGasto.innerHTML =
+        `🏆 Maior gasto: ${categoriaMaior} • R$ ${moeda(valorMaior)}`;
+
+}
 
 
 }
@@ -1509,6 +1616,13 @@ if(temaSalvo === "dark"){
         tela.classList.remove("ativa");
 
     });
+
+    // Atualiza dados ao abrir o resumo
+if(id === "telaResumo"){
+
+    renderizar();
+
+}
 
 
     const tela =

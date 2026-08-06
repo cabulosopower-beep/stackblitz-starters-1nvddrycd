@@ -400,17 +400,42 @@ body.dark .menuAcoes button:hover {
 
   align-items: center;
 
+  justify-content: center;
+
   gap: 4px;
+
+  transition: all .25s ease;
 
 }
 
 
 .itemMenu.ativo {
 
-  color: #1976d2;
+    background:#e8f2ff;
+
+    border-radius:16px;
+
+    padding:6px 12px;
+
+    box-shadow:0 4px 12px rgba(25,118,210,.25);
+
+color:#1976d2;
+
+transform:translateY(-4px);
 
 }
 
+.itemMenu.ativo .iconeMenu{
+
+  transform:scale(1.25);
+
+}
+
+.itemMenu:hover .iconeMenu{
+
+  transform:scale(1.15);
+
+}
 
 .itemMenu span {
 
@@ -447,6 +472,10 @@ body.dark .itemMenu {
 
 
 body.dark .itemMenu.ativo {
+
+    background:#2c3d52;
+
+    box-shadow:0 4px 12px rgba(66,165,245,.25);
 
   color: #42a5f5;
 
@@ -605,5 +634,232 @@ body.dark .itemMenu.ativo {
 .observacaoCompacta span {
 
   cursor: text;
+
+}
+
+/* ==========================================
+   CONFIGURAÇÕES
+========================================== */
+
+.listaConfig{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.itemConfig{
+
+  width:100%;
+
+  display:flex;
+
+  justify-content:space-between;
+
+  align-items:center;
+
+  padding:15px;
+
+  border:none;
+
+  border-radius:12px;
+
+  background:#f4f4f4;
+
+  font-size:16px;
+
+  cursor:pointer;
+
+  transition:.2s;
+}
+
+.itemConfig:hover{
+
+  background:#e8e8e8;
+
+}
+
+body.dark .itemConfig{
+
+  background:#2b2b2b;
+
+  color:white;
+
+}
+
+body.dark .itemConfig:hover{
+
+  background:#383838;
+
+}
+
+.sobreApp{
+
+  text-align:center;
+
+}
+
+.sobreApp h2{
+
+  color:#1976d2;
+
+  margin-bottom:10px;
+
+}
+
+.sobreApp p{
+
+  margin-bottom:8px;
+
+  font-weight:bold;
+
+}
+
+.sobreApp small{
+
+  color:#777;
+
+  line-height:1.5;
+
+}
+
+body.dark .sobreApp small{
+
+  color:#bbb;
+
+}
+
+/* Ícone do menu */
+
+.iconeMenu{
+
+  font-size:22px;
+
+  transition:.25s ease;
+
+}
+
+/* ==========================================
+   TELA INICIAL
+========================================== */
+
+
+
+#resumoInicio{
+
+  display:flex;
+
+  flex-direction:column;
+
+  align-items:center;
+
+  gap:12px;
+
+}
+
+.cabecalhoInicio{
+
+  display:flex;
+
+  flex-direction:column;
+
+  align-items:center;
+
+  gap:8px;
+
+}
+
+/* ==========================================
+   CABEÇALHO INÍCIO NOVO
+========================================== */
+
+.tituloInicio{
+
+  font-size:24px;
+
+  font-weight:bold;
+
+  color:#1976d2;
+
+  margin-bottom:8px;
+
+}
+
+
+.cabecalhoInicio{
+
+  text-align:center;
+
+}
+
+
+.mesAtual{
+
+  font-size:16px;
+
+  color:#666;
+
+  margin-bottom:5px;
+
+}
+
+
+.quantidade{
+
+  font-size:14px;
+
+  color:#888;
+
+}
+
+/* ==========================================
+   CAMPOS MOBILE - PADRÃO BRANCO
+========================================== */
+
+input,
+select {
+
+    background-color: #ffffff;
+
+    color: #333;
+
+    opacity: 1;
+
+    -webkit-appearance: none;
+
+    appearance: none;
+
+}
+
+
+/* Corrige campos de data no celular */
+
+input[type="date"] {
+
+    background-color: #ffffff;
+
+    color: #333;
+
+}
+
+
+/* Corrige select no celular */
+
+select {
+
+    background-color: #ffffff;
+
+    color: #333;
+
+}
+
+
+/* Tema escuro continua funcionando */
+
+body.dark input,
+body.dark select {
+
+    background-color: #2b2b2b;
+
+    color: #fff;
 
 }
