@@ -247,6 +247,112 @@
       </div>
     </div>
   </section>
+  <!-- ========================================= -->
+<!-- METAS -->
+<!-- ========================================= -->
+
+<section id="telaMetas" class="tela">
+
+  <div class="card">
+
+    <h3>🎯 Minhas Metas</h3>
+
+    <button
+      class="btnSalvar btnNovaMeta"
+      onclick="abrirFormularioMeta()">
+
+      ➕ Nova meta
+
+    </button>
+
+  </div>
+
+  <div id="listaMetas"></div>
+
+</section>
+
+<!-- ========================================= -->
+<!-- DETALHES DA META -->
+<!-- ========================================= -->
+
+<section id="telaDetalheMeta" class="tela">
+
+  <div class="card">
+
+    <button
+      class="btnVoltarMeta"
+      onclick="mostrarTela('telaMetas')">
+
+      ← Voltar para metas
+
+    </button>
+
+    <h3 id="tituloMetaDetalhe">
+      🎯 Meta
+    </h3>
+
+    <div id="resumoMetaDetalhe"></div>
+
+  </div>
+
+
+  <div class="card">
+
+    <h3>💰 Adicionar dinheiro</h3>
+
+    <form id="formAporteMeta">
+
+      <label for="valorAporteMeta">
+        Valor
+      </label>
+
+      <input
+        type="text"
+        id="valorAporteMeta"
+        inputmode="decimal"
+        placeholder="Ex: 100,00"
+        required
+      >
+
+      <button
+        type="submit"
+        class="btnSalvar">
+
+        Adicionar valor
+
+      </button>
+
+    </form>
+
+    <div id="mensagemMeta"></div>
+
+  </div>
+
+
+  <div class="card">
+
+    <h3>📋 Histórico</h3>
+
+    <div id="historicoMeta"></div>
+
+  </div>
+
+
+  <div class="card">
+
+    <button
+      class="btnExcluirMeta"
+      onclick="excluirMetaAtual()">
+
+      🗑️ Excluir esta meta
+
+    </button>
+
+  </div>
+
+</section>
+
+
   <section id="telaConfiguracoes" class="tela">
 
     <div class="card">
@@ -335,6 +441,14 @@
 
   </button>
 
+  <button
+  class="itemMenu"
+  onclick="mostrarTela('telaMetas', this)">
+
+  <div class="iconeMenu">🎯</div>
+  <span>Metas</span>
+
+</button>
 
   <button
       class="itemMenu"

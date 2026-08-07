@@ -1655,17 +1655,18 @@ if(id === "telaResumo"){
 
     else{
 
-
         const mapa = {
 
             telaInicio: 0,
-
+        
             telaLancamentos: 1,
-
+        
             telaResumo: 2,
-
-            telaConfiguracoes: 3
-
+        
+            telaMetas: 3,
+        
+            telaConfiguracoes: 4
+        
         };
 
 
@@ -1702,12 +1703,17 @@ if(botaoBackup){
 
         const dados = carregarDados();
 
-        const arquivo =
-            JSON.stringify(
-                dados,
-                null,
-                2
-            );
+const metas = carregarMetas();
+
+const arquivo =
+    JSON.stringify(
+        {
+            lancamentos: dados,
+            metas: metas
+        },
+        null,
+        2
+    );
 
         const blob =
             new Blob(
@@ -1796,14 +1802,27 @@ if(arquivoBackup){
 
 
                 const dados =
-                    JSON.parse(
-                        e.target.result
-                    );
+    JSON.parse(
+        e.target.result
+    );
 
 
+if(Array.isArray(dados)){
 
-                salvarDados(dados);
+    salvarDados(dados);
 
+}
+else{
+
+    salvarDados(
+        dados.lancamentos || []
+    );
+
+    salvarMetas(
+        dados.metas || []
+    );
+
+}
 
 
                 alert(
@@ -1843,3 +1862,783 @@ if(arquivoBackup){
 
 
 }
+
+/* ==========================================================
+   SISTEMA DE METAS
+========================================================== */
+
+const STORAGE_METAS = "controle_metas";
+
+let metaAtualId = null;
+
+
+/* ==========================================================
+   DADOS DAS METAS
+========================================================== */
+
+function carregarMetas(){
+
+    return JSON.parse(
+        localStorage.getItem(STORAGE_METAS)
+        || "[]"
+    );
+
+}
+
+
+function salvarMetas(metas){
+
+    localStorage.setItem(
+        STORAGE_METAS,
+        JSON.stringify(metas)
+    );
+
+}
+
+
+function encontrarMeta(id){
+
+    const metas = carregarMetas();
+
+    return metas.find(
+        meta =>
+            String(meta.id) === String(id)
+    );
+
+}
+
+
+/* ==========================================================
+   FORMULÁRIO DE NOVA META
+========================================================== */
+
+function abrirFormularioMeta(){
+
+    const nome =
+        prompt("Qual é o nome da meta?");
+
+    if(!nome || !nome.trim()){
+
+        return;
+
+    }
+
+
+    const valorTexto =
+        prompt(
+            "Qual é o valor que você quer atingir?\n\nExemplo: 5000,00"
+        );
+
+
+    if(!valorTexto){
+
+        return;
+
+    }
+
+
+    const valorMeta =
+        Number(
+            valorTexto
+                .replace(/\./g, "")
+                .replace(",", ".")
+        );
+
+
+    if(!valorMeta || valorMeta <= 0){
+
+        alert(
+            "Digite um valor de meta válido."
+        );
+
+        return;
+
+    }
+
+
+    const metas =
+        carregarMetas();
+
+
+    metas.push({
+
+        id: String(gerarID()),
+
+        nome: nome.trim(),
+
+        valorMeta: valorMeta,
+
+        aportes: []
+
+    });
+
+
+    salvarMetas(metas);
+
+
+    renderizarMetas();
+
+}
+
+
+/* ==========================================================
+   RENDERIZAR METAS
+========================================================== */
+
+function renderizarMetas(){
+
+    const lista =
+        document.getElementById("listaMetas");
+
+
+    if(!lista){
+
+        return;
+
+    }
+
+
+    const metas =
+        carregarMetas();
+
+
+    lista.innerHTML = "";
+
+
+    if(metas.length === 0){
+
+        lista.innerHTML = `
+
+          <div class="card">
+
+            <p>
+              Você ainda não possui nenhuma meta.
+            </p>
+
+            <p style="margin-top:8px;color:#777;">
+              Crie sua primeira meta acima.
+            </p>
+
+          </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    metas.forEach(meta => {
+
+        const atual =
+            meta.aportes.reduce(
+                (total, aporte) =>
+                    total + Number(aporte.valor),
+                0
+            );
+
+
+        const faltante =
+            Math.max(
+                meta.valorMeta - atual,
+                0
+            );
+
+
+        const porcentagem =
+            Math.min(
+                (atual / meta.valorMeta) * 100,
+                100
+            );
+
+
+        const div =
+            document.createElement("div");
+
+
+        div.className =
+            "cardMeta";
+
+
+        div.onclick = function(){
+
+            abrirMeta(meta.id);
+
+        };
+
+
+        div.innerHTML = `
+
+          <div class="nomeMeta">
+
+            🎯 ${meta.nome}
+
+          </div>
+
+
+          <div class="valoresMeta">
+
+            <div class="valorAtualMeta">
+
+              Atual:
+              R$ ${moeda(atual)}
+
+            </div>
+
+
+            <div class="valorObjetivoMeta">
+
+              Meta:
+              R$ ${moeda(meta.valorMeta)}
+
+            </div>
+
+
+            <div class="valorFaltanteMeta">
+
+              ${
+                faltante > 0
+                ?
+                "Faltam: R$ " + moeda(faltante)
+                :
+                "Meta atingida! 🎉"
+              }
+
+            </div>
+
+          </div>
+
+
+          <div class="barraMeta">
+
+            <div
+              class="progressoMeta"
+              style="width:${porcentagem}%">
+
+            </div>
+
+          </div>
+
+
+          <div class="porcentagemMeta">
+
+            ${porcentagem.toFixed(0)}%
+
+          </div>
+
+        `;
+
+
+        lista.appendChild(div);
+
+    });
+
+}
+
+
+/* ==========================================================
+   ABRIR DETALHES DA META
+========================================================== */
+
+function abrirMeta(id){
+
+    metaAtualId = id;
+
+
+    const meta =
+        encontrarMeta(id);
+
+
+    if(!meta){
+
+        return;
+
+    }
+
+
+    document.getElementById(
+        "tituloMetaDetalhe"
+    ).innerText =
+        "🎯 " + meta.nome;
+
+
+    renderizarDetalheMeta();
+
+
+    mostrarTela(
+        "telaDetalheMeta"
+    );
+
+}
+
+
+/* ==========================================================
+   DETALHES DA META
+========================================================== */
+
+function renderizarDetalheMeta(){
+
+    const meta =
+        encontrarMeta(metaAtualId);
+
+
+    if(!meta){
+
+        return;
+
+    }
+
+
+    const atual =
+        meta.aportes.reduce(
+            (total, aporte) =>
+                total + Number(aporte.valor),
+            0
+        );
+
+
+    const faltante =
+        Math.max(
+            meta.valorMeta - atual,
+            0
+        );
+
+
+    const porcentagem =
+        Math.min(
+            (atual / meta.valorMeta) * 100,
+            100
+        );
+
+
+    const resumo =
+        document.getElementById(
+            "resumoMetaDetalhe"
+        );
+
+
+    resumo.innerHTML = `
+
+      <div class="valoresMeta">
+
+        <div class="valorAtualMeta">
+
+          💰 Atual:
+          R$ ${moeda(atual)}
+
+        </div>
+
+
+        <div class="valorObjetivoMeta">
+
+          🎯 Meta:
+          R$ ${moeda(meta.valorMeta)}
+
+        </div>
+
+
+        <div class="valorFaltanteMeta">
+
+          ${
+            faltante > 0
+            ?
+            "📌 Faltam: R$ " + moeda(faltante)
+            :
+            "🎉 Meta atingida!"
+          }
+
+        </div>
+
+
+        <div class="barraMeta">
+
+          <div
+            class="progressoMeta"
+            style="width:${porcentagem}%">
+
+          </div>
+
+        </div>
+
+
+        <div class="porcentagemMeta">
+
+          ${porcentagem.toFixed(0)}% concluído
+
+        </div>
+
+      </div>
+
+    `;
+
+
+    renderizarHistoricoMeta();
+
+}
+
+
+/* ==========================================================
+   HISTÓRICO DA META
+========================================================== */
+
+function renderizarHistoricoMeta(){
+
+    const area =
+        document.getElementById(
+            "historicoMeta"
+        );
+
+
+    if(!area){
+
+        return;
+
+    }
+
+
+    const meta =
+        encontrarMeta(metaAtualId);
+
+
+    if(!meta){
+
+        return;
+
+    }
+
+
+    area.innerHTML = "";
+
+
+    if(meta.aportes.length === 0){
+
+        area.innerHTML =
+            "<p>Nenhum valor adicionado ainda.</p>";
+
+        return;
+
+    }
+
+
+    const aportes =
+        [...meta.aportes]
+        .sort(
+            (a,b) =>
+                new Date(b.data)
+                -
+                new Date(a.data)
+        );
+
+
+    aportes.forEach(aporte => {
+
+        const div =
+            document.createElement("div");
+
+
+        div.className =
+            "itemHistoricoMeta";
+
+
+        div.innerHTML = `
+
+          <div>
+
+            <div class="valorHistoricoMeta">
+
+              + R$ ${moeda(aporte.valor)}
+
+            </div>
+
+            <div class="dataHistoricoMeta">
+
+              ${formatarData(aporte.data)}
+
+            </div>
+
+          </div>
+
+
+          <button
+            class="btnExcluirAporte"
+            onclick="event.stopPropagation(); excluirAporte('${aporte.id}')">
+
+            Excluir
+
+          </button>
+
+        `;
+
+
+        area.appendChild(div);
+
+    });
+
+}
+
+
+/* ==========================================================
+   ADICIONAR VALOR NA META
+========================================================== */
+
+const formAporteMeta =
+    document.getElementById(
+        "formAporteMeta"
+    );
+
+
+if(formAporteMeta){
+
+    formAporteMeta.addEventListener(
+        "submit",
+        function(evento){
+
+            evento.preventDefault();
+
+
+            if(!metaAtualId){
+
+                return;
+
+            }
+
+
+            const campo =
+                document.getElementById(
+                    "valorAporteMeta"
+                );
+
+
+            const valor =
+                Number(
+                    campo.value
+                        .replace(/\./g, "")
+                        .replace(",", ".")
+                );
+
+
+            if(!valor || valor <= 0){
+
+                alert(
+                    "Digite um valor válido."
+                );
+
+                return;
+
+            }
+
+
+            const metas =
+                carregarMetas();
+
+
+            const meta =
+                metas.find(
+                    item =>
+                        String(item.id)
+                        ===
+                        String(metaAtualId)
+                );
+
+
+            if(!meta){
+
+                return;
+
+            }
+
+
+            meta.aportes.push({
+
+                id: String(gerarID()),
+
+                valor: valor,
+
+                data: new Date().toISOString()
+
+            });
+
+
+            salvarMetas(metas);
+
+
+            campo.value = "";
+
+
+            renderizarDetalheMeta();
+
+            renderizarMetas();
+
+
+            const mensagem =
+                document.getElementById(
+                    "mensagemMeta"
+                );
+
+
+            mensagem.innerText =
+                "Valor adicionado com sucesso!";
+
+
+            mensagem.style.color =
+                "green";
+
+
+            setTimeout(() => {
+
+                mensagem.innerText = "";
+
+            }, 3000);
+
+        }
+    );
+
+}
+
+
+/* ==========================================================
+   EXCLUIR APORTE
+========================================================== */
+
+function excluirAporte(id){
+
+    if(
+        !confirm(
+            "Deseja excluir este valor?"
+        )
+    ){
+
+        return;
+
+    }
+
+
+    const metas =
+        carregarMetas();
+
+
+    const meta =
+        metas.find(
+            item =>
+                String(item.id)
+                ===
+                String(metaAtualId)
+        );
+
+
+    if(!meta){
+
+        return;
+
+    }
+
+
+    meta.aportes =
+        meta.aportes.filter(
+            aporte =>
+                String(aporte.id)
+                !==
+                String(id)
+        );
+
+
+    salvarMetas(metas);
+
+
+    renderizarDetalheMeta();
+
+    renderizarMetas();
+
+}
+
+
+/* ==========================================================
+   EXCLUIR META
+========================================================== */
+
+function excluirMetaAtual(){
+
+    const meta =
+        encontrarMeta(metaAtualId);
+
+
+    if(!meta){
+
+        return;
+
+    }
+
+
+    if(
+        !confirm(
+            `Deseja excluir a meta "${meta.nome}"?\n\nTodos os valores registrados nela também serão excluídos.`
+        )
+    ){
+
+        return;
+
+    }
+
+
+    let metas =
+        carregarMetas();
+
+
+    metas =
+        metas.filter(
+            item =>
+                String(item.id)
+                !==
+                String(metaAtualId)
+        );
+
+
+    salvarMetas(metas);
+
+
+    metaAtualId = null;
+
+
+    mostrarTela(
+        "telaMetas"
+    );
+
+
+    renderizarMetas();
+
+}
+
+
+/* ==========================================================
+   ATUALIZAR METAS AO ABRIR A TELA
+========================================================== */
+
+const mostrarTelaOriginal =
+    mostrarTela;
+
+
+mostrarTela = function(
+    id,
+    botao = null
+){
+
+    mostrarTelaOriginal(
+        id,
+        botao
+    );
+
+
+    if(id === "telaMetas"){
+
+        renderizarMetas();
+
+    }
+
+
+    if(id === "telaDetalheMeta"){
+
+        renderizarDetalheMeta();
+
+    }
+
+};
