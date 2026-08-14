@@ -1058,3 +1058,87 @@ body.dark .itemHistoricoMeta {
   background: #1976d2;
   color: white;
 }
+
+/* Títulos das seções */
+.card h3 {
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 10px;
+  margin-bottom: 18px;
+  font-weight: 700;
+}
+
+/* ==========================================================
+   RESUMO FINANCEIRO - BLOCOS
+========================================================== */
+
+#resumoInicio {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+#resumoInicio .resumo {
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  border-left: 5px solid #ccc;
+  background: #fafafa;
+  font-weight: 600;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+}
+
+/* Saldo */
+#resumoInicio .saldo {
+  border-left-color: #2196f3;
+}
+
+/* Receitas */
+#resumoInicio .resumoReceitas {
+  border-left-color: #43a047;
+}
+
+/* Despesas */
+#resumoInicio .resumoDespesas {
+  border-left-color: #e53935;
+}
+
+/* Pendências */
+#resumoInicio .resumoPendencias {
+  border-left-color: #fbc02d;
+}
+
+/* ==========================================================
+   TRANSAÇÕES - RESUMO DO MÊS
+========================================================== */
+
+#telaResumo .resumo {
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  border-left: 5px solid #ccc;
+  background: #fafafa;
+  font-weight: 600;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+}
+
+/* Despesas */
+#telaResumo .resumoDespesas {
+  border-left-color: #e53935;
+}
+
+/* Receitas */
+#telaResumo .resumoReceitas {
+  border-left-color: #43a047;
+}
+
+/* Saldo */
+#telaResumo .saldo {
+  border-left-color: #2196f3;
+}
+
+/* Pendentes */
+#telaResumo .resumoPendencias {
+  border-left-color: #fbc02d;
+}

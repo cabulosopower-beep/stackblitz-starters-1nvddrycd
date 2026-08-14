@@ -320,8 +320,7 @@ document.addEventListener("click", function(e){
 ========================================================== */
 
 
-const valor = calcularExpressao(expressaoCalc);
-    (evento) => {
+form.addEventListener("submit", (evento) => {
 
         evento.preventDefault();
 
@@ -473,8 +472,7 @@ atualizarInicio();
 
 renderizar();
 
-    }
-;
+});
 
 
 
@@ -2669,26 +2667,20 @@ mostrarTela = function(
 
 let expressaoCalc = "";
 
-const campoValorCalc = document.getElementById("valor");
-const tecladoValorCalc = document.getElementById("tecladoValor");
-const resultadoTecladoCalc = document.getElementById("resultadoTeclado");
-
-if (campoValorCalc) {
-
-    campoValorCalc.addEventListener("click", function () {
-
-        tecladoValorCalc.style.display = "block";
-
-    });
-
-}
-
-
 function teclaCalc(tecla) {
 
     expressaoCalc += tecla;
 
-    atualizarCalculadora();
+    document.getElementById("valor").value =
+        expressaoCalc;
+
+    const resultado =
+        calcularExpressao(expressaoCalc);
+
+    document.getElementById("resultadoTeclado").innerText =
+        resultado !== null
+            ? "R$ " + moeda(resultado)
+            : expressaoCalc;
 
 }
 
@@ -2698,7 +2690,10 @@ function apagarCalc() {
     expressaoCalc =
         expressaoCalc.slice(0, -1);
 
-    atualizarCalculadora();
+    document.getElementById("valor").value =
+        expressaoCalc;
+
+    atualizarTeclado();
 
 }
 
@@ -2707,23 +2702,23 @@ function limparCalc() {
 
     expressaoCalc = "";
 
-    campoValorCalc.value = "";
+    document.getElementById("valor").value = "";
 
-    resultadoTecladoCalc.innerText =
+    document.getElementById("resultadoTeclado").innerText =
         "R$ 0,00";
 
 }
 
 
-function atualizarCalculadora() {
+function atualizarTeclado() {
 
-    let resultado =
+    const resultado =
         calcularExpressao(expressaoCalc);
 
-    resultadoTecladoCalc.innerText =
+    document.getElementById("resultadoTeclado").innerText =
         resultado !== null
-        ? "R$ " + moeda(resultado)
-        : expressaoCalc || "R$ 0,00";
+            ? "R$ " + moeda(resultado)
+            : expressaoCalc || "R$ 0,00";
 
 }
 
@@ -2741,13 +2736,471 @@ function finalizarCalc() {
 
     }
 
-    campoValorCalc.value =
-        moeda(resultado);
-
     expressaoCalc =
         String(resultado);
 
-    resultadoTecladoCalc.innerText =
+    document.getElementById("valor").value =
+        moeda(resultado);
+
+    document.getElementById("resultadoTeclado").innerText =
         "R$ " + moeda(resultado);
 
 }
+
+document.addEventListener("click", function(evento) {
+
+    const teclado = document.getElementById("tecladoValor");
+
+    if (!teclado) return;
+
+    if (
+        !teclado.contains(evento.target) &&
+        evento.target.id !== "valor"
+    ) {
+        teclado.style.display = "none";
+    }
+
+});
+
+/* ==========================================================
+   SISTEMA DE CATEGORIAS
+========================================================== */
+
+const STORAGE_CATEGORIAS = "controle_categorias";
+
+const categoriasPadrao = [
+    { nome: "Alimentação", icone: "🍔" },
+    { nome: "Transporte", icone: "🚗" },
+    { nome: "Lazer", icone: "🎮" },
+    { nome: "Moradia", icone: "🏠" },
+    { nome: "Saúde", icone: "💊" },
+    { nome: "Salário", icone: "💰" },
+    { nome: "Outros", icone: "📦" }
+];
+
+function carregarCategorias(){
+
+    let categorias =
+        JSON.parse(
+            localStorage.getItem(STORAGE_CATEGORIAS)
+            || "null"
+        );
+
+    if(!categorias){
+
+        categorias = categoriasPadrao;
+
+        localStorage.setItem(
+            STORAGE_CATEGORIAS,
+            JSON.stringify(categorias)
+        );
+
+    }
+
+    return categorias;
+}
+
+
+function salvarCategorias(categorias){
+
+    localStorage.setItem(
+        STORAGE_CATEGORIAS,
+        JSON.stringify(categorias)
+    );
+
+}
+
+
+function renderizarCategorias(){
+
+    const lista =
+        document.getElementById("listaCategorias");
+
+    if(!lista){
+        return;
+    }
+
+    const categorias =
+        carregarCategorias();
+
+    lista.innerHTML = "";
+
+    categorias.forEach((categoria, index) => {
+
+        const div =
+            document.createElement("div");
+
+        div.className = "card";
+
+        div.innerHTML = `
+            <div style="
+                display:flex;
+                align-items:center;
+                justify-content:space-between;
+                gap:10px;
+            ">
+
+                <strong>
+                    ${categoria.icone} ${categoria.nome}
+                </strong>
+
+                <div style="display:flex;gap:6px;">
+
+                    <button
+                        class="btnEditar"
+                        onclick="editarCategoria(${index})">
+
+                        ✏️
+
+                    </button>
+
+                    <button
+                        class="btnExcluir"
+                        onclick="excluirCategoria(${index})">
+
+                        🗑️
+
+                    </button>
+
+                </div>
+
+            </div>
+        `;
+
+        lista.appendChild(div);
+
+    });
+
+}
+
+
+function adicionarCategoria(){
+
+    const nome =
+        prompt("Nome da nova categoria:");
+
+    if(!nome || !nome.trim()){
+        return;
+    }
+
+    const icone =
+    prompt("Escolha um emoji para a categoria (opcional):", "");
+
+    const categorias =
+        carregarCategorias();
+
+    categorias.push({
+
+        nome: nome.trim(),
+
+        icone: icone || ""
+
+    });
+
+    salvarCategorias(categorias);
+
+renderizarCategorias();
+
+atualizarCategoriasLancamento();
+
+}
+
+
+function editarCategoria(index){
+
+    const categorias =
+        carregarCategorias();
+
+    const categoria =
+        categorias[index];
+
+    const nomeAntigo =
+        categoria.nome;
+
+    const novoNome =
+        prompt(
+            "Novo nome da categoria:",
+            nomeAntigo
+        );
+
+    if(!novoNome || !novoNome.trim()){
+        return;
+    }
+
+    const novoIcone =
+        prompt(
+            "Novo emoji:",
+            categoria.icone
+        );
+
+    const nomeNovo =
+        novoNome.trim();
+
+    categoria.nome =
+        nomeNovo;
+
+    categoria.icone =
+        novoIcone || "";
+
+    salvarCategorias(categorias);
+
+
+    /* Atualiza os lançamentos antigos */
+
+    const dados =
+        carregarDados();
+
+    dados.forEach(item => {
+
+        if(item.categoria === nomeAntigo){
+
+            item.categoria =
+                nomeNovo;
+
+        }
+
+    });
+
+    salvarDados(dados);
+
+
+    renderizarCategorias();
+
+    atualizarCategoriasLancamento();
+
+    atualizarInicio();
+
+    renderizar();
+
+}
+
+
+function excluirCategoria(index){
+
+    const categorias =
+        carregarCategorias();
+
+    const categoria =
+        categorias[index];
+
+    const dados =
+        carregarDados();
+
+    const quantidade =
+        dados.filter(
+            item => item.categoria === categoria.nome
+        ).length;
+
+
+    if(quantidade === 0){
+
+        if(!confirm(
+            `Excluir a categoria "${categoria.nome}"?`
+        )){
+            return;
+        }
+
+        categorias.splice(index, 1);
+
+        salvarCategorias(categorias);
+
+        renderizarCategorias();
+
+        atualizarCategoriasLancamento();
+
+        return;
+
+    }
+
+
+    const opcao =
+        prompt(
+            `A categoria "${categoria.nome}" possui ${quantidade} lançamento(s).\n\n` +
+            `Digite:\n\n` +
+            `1 - Transferir para outra categoria\n` +
+            `2 - Manter os lançamentos sem categoria\n` +
+            `3 - Cancelar`
+        );
+
+
+    if(opcao === "3" || opcao === null){
+        return;
+    }
+
+
+    if(opcao === "1"){
+
+        const outrasCategorias =
+            categorias.filter(
+                (_, i) => i !== index
+            );
+
+
+        if(outrasCategorias.length === 0){
+
+            alert(
+                "Não existe outra categoria para transferir os lançamentos."
+            );
+
+            return;
+
+        }
+
+
+        let texto =
+            "Escolha a nova categoria:\n\n";
+
+
+        outrasCategorias.forEach(
+            (cat, i) => {
+
+                texto +=
+                    `${i + 1} - ${cat.icone ? cat.icone + " " : ""}${cat.nome}\n`;
+
+            }
+        );
+
+
+        const escolha =
+            Number(
+                prompt(texto)
+            );
+
+
+        const novaCategoria =
+            outrasCategorias[escolha - 1];
+
+
+        if(!novaCategoria){
+
+            alert("Categoria inválida.");
+
+            return;
+
+        }
+
+
+        dados.forEach(item => {
+
+            if(item.categoria === categoria.nome){
+
+                item.categoria =
+                    novaCategoria.nome;
+
+            }
+
+        });
+
+
+        salvarDados(dados);
+
+    }
+
+
+    if(opcao === "2"){
+
+        dados.forEach(item => {
+
+            if(item.categoria === categoria.nome){
+
+                item.categoria = "";
+
+            }
+
+        });
+
+
+        salvarDados(dados);
+
+    }
+
+
+    if(opcao !== "1" && opcao !== "2"){
+
+        alert("Opção inválida.");
+
+        return;
+
+    }
+
+
+    categorias.splice(index, 1);
+
+    salvarCategorias(categorias);
+
+    renderizarCategorias();
+
+    atualizarCategoriasLancamento();
+
+    atualizarInicio();
+
+    renderizar();
+
+}
+
+/* Atualizar tela de categorias */
+
+const mostrarTelaComCategorias =
+    mostrarTela;
+
+mostrarTela = function(
+    id,
+    botao = null
+){
+
+    mostrarTelaComCategorias(
+        id,
+        botao
+    );
+
+    if(id === "telaCategorias"){
+
+        renderizarCategorias();
+
+    }
+
+};
+
+function atualizarCategoriasLancamento(){
+
+    const select =
+        document.getElementById("categoria");
+
+    if(!select){
+        return;
+    }
+
+    const valorAtual =
+        select.value;
+
+    const categorias =
+        carregarCategorias();
+
+    select.innerHTML =
+        '<option value="" selected disabled>Selecione...</option>';
+
+    categorias.forEach(categoria => {
+
+        const option =
+            document.createElement("option");
+
+        option.value =
+            categoria.nome;
+
+        option.textContent =
+            `${categoria.icone ? categoria.icone + " " : ""}${categoria.nome}`;
+
+        select.appendChild(option);
+
+    });
+
+    if(categorias.some(c => c.nome === valorAtual)){
+
+        select.value =
+            valorAtual;
+
+    }
+
+}
+
+atualizarCategoriasLancamento();

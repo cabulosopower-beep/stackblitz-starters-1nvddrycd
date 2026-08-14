@@ -420,6 +420,11 @@
               <span>›</span>
           </button>
   
+          <button class="itemConfig" onclick="mostrarTela('telaCategorias')">
+            <span>🏷️ Categorias</span>
+            <span>›</span>
+        </button>
+
       </div>
   
       <input
@@ -454,6 +459,38 @@
 
 </section>
 
+<!-- ========================================= -->
+<!-- CATEGORIAS -->
+<!-- ========================================= -->
+
+<section id="telaCategorias" class="tela">
+
+  <div class="card">
+
+    <button
+      class="btnVoltarMeta"
+      onclick="mostrarTela('telaConfiguracoes')">
+
+      ← Voltar para configurações
+
+    </button>
+
+    <h3>🏷️ Minhas Categorias</h3>
+
+    <button
+      class="btnSalvar btnNovaMeta"
+      onclick="adicionarCategoria()">
+
+      ➕ Nova categoria
+
+    </button>
+
+  </div>
+
+  <div id="listaCategorias"></div>
+
+</section>
+
 <nav class="menuInferior">
 
   <button
@@ -481,7 +518,7 @@
       onclick="mostrarTela('telaResumo', this)">
 
       <div class="iconeMenu">📊</div>
-      <span>Resumo</span>
+      <span>Transações</span>
 
   </button>
 
