@@ -120,12 +120,57 @@
           <input type="text" id="descricao" required />
 
           <label for="valor">Valor</label>
-          <input
-    type="text"
-    id="valor"
-    inputmode="decimal"
-    placeholder="Ex: 150,00"
-    required
+          <div class="campoCalculadora">
+
+            <input
+              type="text"
+              id="valor"
+              placeholder="R$ 0,00"
+              readonly
+              required
+            >
+          
+            <div id="tecladoValor" class="tecladoCalculadora">
+          
+              <div id="resultadoTeclado" class="resultadoTeclado">
+                R$ 0,00
+              </div>
+          
+              <div class="botoesCalculadora">
+          
+                <button type="button" onclick="teclaCalc('7')">7</button>
+                <button type="button" onclick="teclaCalc('8')">8</button>
+                <button type="button" onclick="teclaCalc('9')">9</button>
+                <button type="button" onclick="teclaCalc('/')">÷</button>
+          
+                <button type="button" onclick="teclaCalc('4')">4</button>
+                <button type="button" onclick="teclaCalc('5')">5</button>
+                <button type="button" onclick="teclaCalc('6')">6</button>
+                <button type="button" onclick="teclaCalc('*')">×</button>
+          
+                <button type="button" onclick="teclaCalc('1')">1</button>
+                <button type="button" onclick="teclaCalc('2')">2</button>
+                <button type="button" onclick="teclaCalc('3')">3</button>
+                <button type="button" onclick="teclaCalc('-')">−</button>
+          
+                <button type="button" onclick="teclaCalc('0')">0</button>
+                <button type="button" onclick="teclaCalc(',')">,</button>
+                <button type="button" onclick="apagarCalc()">⌫</button>
+                <button type="button" onclick="teclaCalc('+')">+</button>
+          
+              </div>
+          
+              <div class="botoesCalculadoraExtras">
+          
+                <button type="button" onclick="limparCalc()">C</button>
+          
+                <button type="button" onclick="finalizarCalc()">=</button>
+          
+              </div>
+          
+            </div>
+          
+          </div>
 >
 
           <label for="dataLancamento"> Data </label>

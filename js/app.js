@@ -106,16 +106,37 @@ const maiorGasto =
 
     const campoValor = document.getElementById("valor");
 
-    campoValor.addEventListener("input", function () {
-      let valor = this.value.replace(/[^0-9,]/g, "");
-    
-      const partes = valor.split(",");
-      if (partes.length > 2) {
-        valor = partes[0] + "," + partes.slice(1).join("");
-      }
-    
-      this.value = valor;
-    });
+function calcularExpressao(valor) {
+
+    let expressao = valor
+        .replace(/,/g, ".")
+        .replace(/×/g, "*")
+        .replace(/÷/g, "/")
+        .replace(/\s/g, "");
+
+    if (!/^[0-9.+\-*/()]+$/.test(expressao)) {
+        return null;
+    }
+
+    try {
+
+        const resultado = Function(
+            '"use strict"; return (' + expressao + ')'
+        )();
+
+        if (!Number.isFinite(resultado)) {
+            return null;
+        }
+
+        return Number(resultado.toFixed(2));
+
+    } catch (erro) {
+
+        return null;
+
+    }
+
+}
 
 /* ==========================================================
    EVENTOS
@@ -299,8 +320,7 @@ document.addEventListener("click", function(e){
 ========================================================== */
 
 
-form.addEventListener(
-    "submit",
+const valor = calcularExpressao(expressaoCalc);
     (evento) => {
 
         evento.preventDefault();
@@ -310,11 +330,15 @@ form.addEventListener(
             inputDescricao.value.trim();
 
 
-            const valor =
-            Number(
-                inputValor.value
-                    .replace(",", ".")
-            );
+            const valor = calcularExpressao(inputValor.value);
+
+            if (valor === null || valor <= 0) {
+
+             alert("Digite um valor ou uma conta válida.");
+
+             return;
+
+}
         
             const confirmar = confirm(
                 `Deseja salvar este lançamento?\n\n` +
@@ -450,7 +474,7 @@ atualizarInicio();
 renderizar();
 
     }
-);
+;
 
 
 
@@ -476,11 +500,7 @@ function criarParcelas({
 
 
 
-    const valorParcela =
-        Number(
-            (valor / quantidade)
-            .toFixed(2)
-        );
+    const valorParcela = Number(valor);
 
 
 
@@ -2642,3 +2662,92 @@ mostrarTela = function(
     }
 
 };
+
+/* ==========================================================
+   CALCULADORA DO CAMPO VALOR
+========================================================== */
+
+let expressaoCalc = "";
+
+const campoValorCalc = document.getElementById("valor");
+const tecladoValorCalc = document.getElementById("tecladoValor");
+const resultadoTecladoCalc = document.getElementById("resultadoTeclado");
+
+if (campoValorCalc) {
+
+    campoValorCalc.addEventListener("click", function () {
+
+        tecladoValorCalc.style.display = "block";
+
+    });
+
+}
+
+
+function teclaCalc(tecla) {
+
+    expressaoCalc += tecla;
+
+    atualizarCalculadora();
+
+}
+
+
+function apagarCalc() {
+
+    expressaoCalc =
+        expressaoCalc.slice(0, -1);
+
+    atualizarCalculadora();
+
+}
+
+
+function limparCalc() {
+
+    expressaoCalc = "";
+
+    campoValorCalc.value = "";
+
+    resultadoTecladoCalc.innerText =
+        "R$ 0,00";
+
+}
+
+
+function atualizarCalculadora() {
+
+    let resultado =
+        calcularExpressao(expressaoCalc);
+
+    resultadoTecladoCalc.innerText =
+        resultado !== null
+        ? "R$ " + moeda(resultado)
+        : expressaoCalc || "R$ 0,00";
+
+}
+
+
+function finalizarCalc() {
+
+    const resultado =
+        calcularExpressao(expressaoCalc);
+
+    if (resultado === null) {
+
+        alert("Conta inválida.");
+
+        return;
+
+    }
+
+    campoValorCalc.value =
+        moeda(resultado);
+
+    expressaoCalc =
+        String(resultado);
+
+    resultadoTecladoCalc.innerText =
+        "R$ " + moeda(resultado);
+
+}

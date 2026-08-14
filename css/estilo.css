@@ -1002,3 +1002,59 @@ body.dark .btnVoltarMeta {
 body.dark .itemHistoricoMeta {
   border-color: #444;
 }
+
+/* =====================================================
+   TECLADO CALCULADORA
+===================================================== */
+
+.tecladoCalculadora {
+  display: none;
+  margin-top: 8px;
+  padding: 10px;
+  background: #f1f1f1;
+  border-radius: 12px;
+}
+
+.resultadoTeclado {
+  background: white;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  text-align: right;
+  font-size: 20px;
+  font-weight: bold;
+  color: #1976d2;
+  min-height: 45px;
+}
+
+.botoesCalculadora {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 7px;
+}
+
+.botoesCalculadora button,
+.botoesCalculadoraExtras button {
+  height: 48px;
+  font-size: 18px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.botoesCalculadora button:active,
+.botoesCalculadoraExtras button:active {
+  transform: scale(.95);
+}
+
+.botoesCalculadoraExtras {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  margin-top: 7px;
+}
+
+.botoesCalculadoraExtras button:last-child {
+  background: #1976d2;
+  color: white;
+}
