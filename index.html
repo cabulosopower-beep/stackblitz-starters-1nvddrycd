@@ -128,6 +128,7 @@
               placeholder="R$ 0,00"
               readonly
               required
+              onclick="document.getElementById('tecladoValor').style.display='block'"
             >
           
             <div id="tecladoValor" class="tecladoCalculadora">
@@ -163,7 +164,6 @@
               <div class="botoesCalculadoraExtras">
           
                 <button type="button" onclick="limparCalc()">C</button>
-          
                 <button type="button" onclick="finalizarCalc()">=</button>
           
               </div>
