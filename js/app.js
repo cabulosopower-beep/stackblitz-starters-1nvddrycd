@@ -261,15 +261,64 @@ function editarRegistro(id){
     selectCategoria.value = registro.categoria;
     inputObservacao.value = registro.observacao;
 
+    /* Recupera a quantidade original de parcelas */
+
+if(registro.parcela){
+
+    const partesParcela =
+        registro.parcela.split("/");
+
+    const quantidadeParcelas =
+        Number(partesParcela[1]);
+
+    parcelado.value = "sim";
+
+    areaParcelas.style.display = "block";
+
+    inputParcelas.value =
+        quantidadeParcelas;
+
+    inputParcelas.disabled = true;
+
+}
+else{
+
+    parcelado.value = "nao";
+
+    areaParcelas.style.display = "none";
+
+    inputParcelas.disabled = false;
+
+}
+
     idEdicao = id;
 
-    document.querySelector(".btnSalvar").innerText =
-        "Atualizar Registro";
+document.querySelector(".btnSalvar").innerText =
+    "Atualizar Registro";
 
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
+    const avisoEdicao = document.getElementById("avisoEdicao");
+
+if (avisoEdicao) {
+
+    avisoEdicao.innerText =
+        registro.parcela
+            ? `✏️ Editando: ${registro.descricao} — Parcela ${registro.parcela}`
+            : `✏️ Editando: ${registro.descricao}`;
+
+    avisoEdicao.style.display = "block";
+
+}
+
+/* Vai para a tela de lançamento */
+
+mostrarTela("telaLancamentos");
+
+/* Depois sobe para o início da tela */
+
+window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+});
 
 }
 
@@ -320,157 +369,362 @@ document.addEventListener("click", function(e){
 ========================================================== */
 
 
+
+
 form.addEventListener("submit", (evento) => {
 
-        evento.preventDefault();
+    evento.preventDefault();
+
+    const descricao =
+        inputDescricao.value.trim();
+
+    const valor =
+        calcularExpressao(inputValor.value);
+
+    if (valor === null || valor <= 0) {
+
+        alert("Digite um valor ou uma conta válida.");
+
+        return;
+
+    }
+
+    const tipo =
+        selectTipo.value;
+
+    const categoria =
+        selectCategoria.value;
+
+    const observacao =
+        inputObservacao.value.trim();
+
+    const dataEscolhida =
+        inputDataLancamento.value;
+
+    const agora =
+        dataEscolhida
+            ? new Date(dataEscolhida + "T12:00:00")
+            : new Date();
+
+    const dados =
+        carregarDados();
 
 
-        const descricao =
-            inputDescricao.value.trim();
+    /* =====================================================
+       EDIÇÃO DE LANÇAMENTO
+    ===================================================== */
+
+    if (idEdicao) {
+
+        const registro =
+            encontrarRegistro(dados, idEdicao);
+
+        if (!registro) {
+            return;
+        }
 
 
-            const valor = calcularExpressao(inputValor.value);
+        /* Guardamos os dados antigos antes de alterar */
 
-            if (valor === null || valor <= 0) {
+        const grupoOriginal =
+            registro.grupo;
 
-             alert("Digite um valor ou uma conta válida.");
+        const dataOriginal =
+            new Date(registro.data);
 
-             return;
 
-}
-        
-            const confirmar = confirm(
-                `Deseja salvar este lançamento?\n\n` +
-                `Descrição: ${descricao}\n` +
-                `Valor: R$ ${moeda(valor)}\n` +
-                `Categoria: ${selectCategoria.value}`
+        /* Procura todas as parcelas do mesmo grupo */
+
+        const parcelasGrupo =
+            dados
+                .filter(item =>
+                    item.grupo === grupoOriginal
+                )
+                .sort(
+                    (a, b) =>
+                        new Date(a.data) -
+                        new Date(b.data)
+                );
+
+
+        let opcao;
+
+
+        /* Se não for parcelado */
+
+        if (!registro.parcela || parcelasGrupo.length === 1) {
+
+            opcao = "esta";
+
+        }
+
+        else {
+
+            opcao = prompt(
+                "Como deseja aplicar a alteração?\n\n" +
+                "1 - Editar somente esta\n" +
+                "2 - Editar esta e as futuras\n" +
+                "3 - Editar todas as parcelas\n" +
+                "4 - Cancelar"
             );
-            
-            
-            if(!confirmar){
-            
+
+
+            if (opcao === "4" || opcao === null) {
+
                 return;
-            
+
             }
 
-        const tipo =
-            selectTipo.value;
+            if (!["1", "2", "3"].includes(opcao)) {
+
+                alert("Escolha uma opção válida.");
+
+                return;
+
+            }
+
+        }
 
 
-        const categoria =
-            selectCategoria.value;
+        /* =================================================
+           FUNÇÃO PARA APLICAR AS ALTERAÇÕES
+        ================================================= */
+
+        function aplicarAlteracoes(item, novaData) {
+
+            item.descricao =
+                descricao;
+
+            item.valor =
+                valor;
+
+            item.tipo =
+                tipo;
+
+            item.categoria =
+                categoria;
+
+            item.observacao =
+                observacao;
+
+            item.data =
+                novaData.toISOString();
+
+        }
 
 
-        const observacao =
-            inputObservacao.value.trim();
+        /* =================================================
+           SOMENTE ESTA PARCELA
+        ================================================= */
 
+        if (opcao === "esta") {
 
-        const dataEscolhida =
-            inputDataLancamento.value;
-        
-        
-        const agora =
-            dataEscolhida
-                ?
-                new Date(dataEscolhida + "T12:00:00")
-                :
-                new Date();
-
-
-        const dados =
-            carregarDados();
-
-
-        const grupoID =
-            String(
-                Date.now()
-                +
-                Math.random()
+            aplicarAlteracoes(
+                registro,
+                agora
             );
 
-
-
-        if(parcelado.value === "sim"){
-
-            criarParcelas({
-                dados,
-                grupoID,
-                descricao,
-                valor,
-                tipo,
-                categoria,
-                observacao,
-                agora
-            });
-
         }
 
-        
-        else{
 
-            if(idEdicao){
-        
-                const registro = encontrarRegistro(dados, idEdicao);
-        
-                registro.descricao = descricao;
-                registro.valor = valor;
-                registro.tipo = tipo;
-                registro.categoria = categoria;
-                registro.observacao = observacao;
-                registro.data = agora.toISOString();
-        
-                idEdicao = null;
-        
-                document.querySelector(".btnSalvar").innerText =
-                    "Salvar Registro";
-        
-            }else{
-        
-                dados.push({
-        
-                    id: String(gerarID()),
-        
-                    grupo: grupoID,
-        
-                    descricao,
-        
-                    valor,
-        
-                    tipo,
-        
-                    categoria,
-        
-                    observacao,
-        
-                    parcela: "",
-        
-                    status: "pendente",
-        
-                    data: agora.toISOString()
-        
+        /* =================================================
+           ESTA + FUTURAS
+        ================================================= */
+
+        else if (opcao === "2") {
+
+            const indiceAtual =
+                parcelasGrupo.findIndex(
+                    item =>
+                        String(item.id) ===
+                        String(registro.id)
+                );
+
+
+            parcelasGrupo
+                .slice(indiceAtual)
+                .forEach((item, indice) => {
+
+                    const novaData =
+                        new Date(agora);
+
+                    novaData.setMonth(
+                        novaData.getMonth() + indice
+                    );
+
+                    aplicarAlteracoes(
+                        item,
+                        novaData
+                    );
+
                 });
-        
-            }
-        
+
         }
-        const msg = document.getElementById("mensagem");
 
-                msg.innerText = "Registro salvo com sucesso!";
-                msg.style.color = "green";
 
-        setTimeout(()=>{msg.innerText="";},3000);
+        /* =================================================
+           TODAS AS PARCELAS
+        ================================================= */
+
+        else if (opcao === "3") {
+
+            parcelasGrupo.forEach(
+                (item, indice) => {
+
+                    const novaData =
+                        new Date(agora);
+
+                    novaData.setMonth(
+                        novaData.getMonth() + indice
+                    );
+
+                    aplicarAlteracoes(
+                        item,
+                        novaData
+                    );
+
+                }
+            );
+
+        }
+
+
+        idEdicao = null;
+
+
+        document.querySelector(".btnSalvar").innerText =
+            "Salvar Registro";
 
 
         salvarDados(dados);
 
+        limparFormulario();
 
-limparFormulario();
+        atualizarInicio();
+
+        renderizar();
 
 
-atualizarInicio();
+        const msg =
+            document.getElementById("mensagem");
+
+        msg.innerText =
+            "Registro atualizado com sucesso!";
+
+        msg.style.color =
+            "green";
+
+        setTimeout(() => {
+            msg.innerText = "";
+        }, 3000);
 
 
-renderizar();
+        return;
+
+    }
+
+
+    /* =====================================================
+       NOVO LANÇAMENTO
+    ===================================================== */
+
+    const confirmar =
+        confirm(
+            `Deseja salvar este lançamento?\n\n` +
+            `Descrição: ${descricao}\n` +
+            `Valor: R$ ${moeda(valor)}\n` +
+            `Categoria: ${categoria}`
+        );
+
+
+    if (!confirmar) {
+        return;
+    }
+
+
+    const grupoID =
+        String(
+            Date.now() +
+            Math.random()
+        );
+
+
+    if (parcelado.value === "sim") {
+
+        criarParcelas({
+
+            dados,
+            grupoID,
+            descricao,
+            valor,
+            tipo,
+            categoria,
+            observacao,
+            agora
+
+        });
+
+    }
+
+    else {
+
+        dados.push({
+
+            id:
+                String(gerarID()),
+
+            grupo:
+                grupoID,
+
+            descricao,
+
+            valor,
+
+            tipo,
+
+            categoria,
+
+            observacao,
+
+            parcela: "",
+
+            status:
+                "pendente",
+
+            data:
+                agora.toISOString()
+
+        });
+
+    }
+
+
+    salvarDados(dados);
+
+
+    limparFormulario();
+
+
+    atualizarInicio();
+
+    renderizar();
+
+
+    const msg =
+        document.getElementById("mensagem");
+
+    msg.innerText =
+        "Registro salvo com sucesso!";
+
+    msg.style.color =
+        "green";
+
+
+    setTimeout(() => {
+
+        msg.innerText = "";
+
+    }, 3000);
 
 });
 
@@ -577,6 +831,10 @@ function limparFormulario(){
 
     form.reset();
 
+    inputValor.value = "";
+    expressaoCalc = "";
+
+    inputParcelas.disabled = false;
 
     areaParcelas.style.display =
         "none";
