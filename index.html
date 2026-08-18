@@ -233,10 +233,36 @@
 
       <div class="card">
         <h3>Filtro</h3>
-
+      
         <div class="filtro">
-          <input type="month" id="filtroMes" />
+      
+          <button
+            type="button"
+            class="btnMes"
+            onclick="mudarMes(-1)">
+            ◀
+          </button>
+      
+          <div class="mesSelecionado">
+      
+            <span id="mesExibido"></span>
+      
+            <input
+              type="month"
+              id="filtroMes"
+            />
+      
+          </div>
+      
+          <button
+            type="button"
+            class="btnMes"
+            onclick="mudarMes(1)">
+            ▶
+          </button>
+      
         </div>
+      
       </div>
 
       <!-- ========================================= -->

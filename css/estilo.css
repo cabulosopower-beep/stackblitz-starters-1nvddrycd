@@ -1231,3 +1231,78 @@ body.dark .itemHistoricoMeta {
   font-size: 14px;
   font-weight: 600;
 }
+
+/* ==========================================================
+   AJUSTE DA CALCULADORA
+========================================================== */
+
+.botoesCalculadora button:first-child {
+  grid-column: span 2;
+}
+
+/* Botões do formulário de lançamento */
+
+.botoes {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.botoes .btnSalvar {
+  order: 2;
+}
+
+.botoes .btnLimpar {
+  order: 1;
+}
+
+.botoes .avisoEdicao {
+  order: 0;
+  width: 100%;
+}
+
+.filtro {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.mesSelecionado {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#mesExibido {
+  font-size: 18px;
+  font-weight: 600;
+  min-width: 150px;
+  text-align: center;
+}
+
+#filtroMes {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.btnMes {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  background: #eeeeee;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.btnMes:hover {
+  background: #dddddd;
+}

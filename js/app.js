@@ -145,9 +145,78 @@ function calcularExpressao(valor) {
 
 filtroMes.addEventListener(
     "change",
-    renderizar
+    () => {
+
+        atualizarMesExibido();
+
+        renderizar();
+
+    }
 );
 
+function atualizarMesExibido() {
+
+    if (!filtroMes.value) return;
+
+    const [ano, mes] = filtroMes.value.split("-");
+
+    const data = new Date(
+        Number(ano),
+        Number(mes) - 1,
+        1
+    );
+
+    const nomeMes = data.toLocaleDateString(
+        "pt-BR",
+        {
+            month: "long",
+            year: "numeric"
+        }
+    );
+
+    const mesExibido =
+        document.getElementById("mesExibido");
+
+    if (mesExibido) {
+
+        mesExibido.innerText =
+            nomeMes.charAt(0).toUpperCase()
+            + nomeMes.slice(1);
+
+    }
+
+}
+
+
+function mudarMes(direcao) {
+
+    if (!filtroMes.value) return;
+
+    const [ano, mes] =
+        filtroMes.value.split("-").map(Number);
+
+    const data =
+        new Date(ano, mes - 1, 1);
+
+    data.setMonth(
+        data.getMonth() + direcao
+    );
+
+    const novoAno =
+        data.getFullYear();
+
+    const novoMes =
+        String(data.getMonth() + 1)
+            .padStart(2, "0");
+
+    filtroMes.value =
+        `${novoAno}-${novoMes}`;
+
+    atualizarMesExibido();
+
+    renderizar();
+
+}
 
 buscar.addEventListener(
     "input",
@@ -831,14 +900,19 @@ function limparFormulario(){
 
     form.reset();
 
+    // Limpa completamente o campo de valor e a calculadora
     inputValor.value = "";
     expressaoCalc = "";
 
-    inputParcelas.disabled = false;
+    const resultadoTeclado =
+        document.getElementById("resultadoTeclado");
+
+    if(resultadoTeclado){
+        resultadoTeclado.innerText = "R$ 0,00";
+    }
 
     areaParcelas.style.display =
         "none";
-
 
     inputParcelas.value =
         2;
@@ -851,7 +925,8 @@ function limparFormulario(){
     idEdicao = null;
 
     document.querySelector(".btnSalvar").innerText =
-                "Salvar Registro";
+        "Salvar Registro";
+
 }
 
 
@@ -1794,9 +1869,10 @@ function iniciarApp(){
             hoje.getMonth() + 1
         )
         .padStart(2, "0");
+        
 
-
-
+        atualizarMesExibido();
+  
         atualizarInicio();
 
     renderizar();
