@@ -1350,16 +1350,16 @@ function atualizarResumoInteligente(){
     if(gastosMes){
 
         gastosMes.innerHTML =
-        `💸 Gastos: R$ ${moeda(gastos)}`;
-
+        `R$ ${moeda(gastos)}`;
+    
     }
 
 
     if(receitasMes){
 
         receitasMes.innerHTML =
-        `💰 Receitas: R$ ${moeda(receitas)}`;
-
+        `R$ ${moeda(receitas)}`;
+    
     }
 
 
@@ -1387,11 +1387,26 @@ const resumoCategorias =
 if(resumoCategorias){
 
     resumoCategorias.innerHTML =
-        Object.entries(categorias)
-        .map(([categoria, valor]) =>
-            `<div>🏷️ ${categoria}: R$ ${moeda(valor)}</div>`
-        )
-        .join("") || "Nenhum gasto registrado.";
+    Object.entries(categorias)
+    .map(([categoria, valor]) => {
+
+        const porcentagem =
+            gastos > 0
+            ? Math.round((valor / gastos) * 100)
+            : 0;
+
+        return `
+            <div class="linhaResumo">
+                <span>🏷️ ${categoria}</span>
+                <span>
+                    R$ ${moeda(valor)}
+                    <strong>${porcentagem}%</strong>
+                </span>
+            </div>
+        `;
+
+    })
+    .join("") || "Nenhum gasto registrado.";
 
 }
 
@@ -1402,11 +1417,26 @@ const resumoPagamentos =
 if(resumoPagamentos){
 
     resumoPagamentos.innerHTML =
-        Object.entries(pagamentos)
-        .map(([pagamento, valor]) =>
-            `<div>💳 ${pagamento}: R$ ${moeda(valor)}</div>`
-        )
-        .join("") || "Nenhum gasto registrado.";
+    Object.entries(pagamentos)
+    .map(([pagamento, valor]) => {
+
+        const porcentagem =
+            gastos > 0
+            ? Math.round((valor / gastos) * 100)
+            : 0;
+
+        return `
+            <div class="linhaResumo">
+                <span>💳 ${pagamento}</span>
+                <span>
+                    R$ ${moeda(valor)}
+                    <strong>${porcentagem}%</strong>
+                </span>
+            </div>
+        `;
+
+    })
+    .join("") || "Nenhum gasto registrado.";
 
 }
 console.log("CATEGORIAS:", categorias);
@@ -4127,3 +4157,49 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
+
+function fecharInfoResumo(){
+
+    const popup = document.getElementById("popupInfoResumo");
+
+    popup.style.display = "none";
+
+}
+
+function mostrarInfoResumo(tipo){
+
+    const popup = document.getElementById("popupInfoResumo");
+    const titulo = document.getElementById("tituloInfoResumo");
+    const texto = document.getElementById("textoInfoResumo");
+
+    if(tipo === "categoria"){
+
+        titulo.innerHTML = "🏷️ Gastos por categoria";
+
+        texto.innerHTML =
+        "Mostra como os gastos deste mês estão distribuídos entre as categorias.<br><br>" +
+        "A porcentagem representa quanto cada categoria corresponde do total de gastos do mês.";
+
+    }
+
+    if(tipo === "pagamento"){
+
+        titulo.innerHTML = "💳 Gastos por forma de pagamento";
+
+        texto.innerHTML =
+        "Mostra quanto foi gasto usando cada forma de pagamento neste mês.<br><br>" +
+        "A porcentagem representa quanto cada forma de pagamento corresponde do total de gastos.";
+
+    }
+
+    popup.style.display = "flex";
+}
+
+
+function fecharInfoResumo(){
+
+    const popup = document.getElementById("popupInfoResumo");
+
+    popup.style.display = "none";
+
+}

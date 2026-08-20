@@ -59,7 +59,7 @@
 
 </div>
     
-<div class="resumoInteligente"></div>
+<div class="resumoInteligente">
 
   <h3>📆 Este mês</h3>
 
@@ -71,9 +71,21 @@
       💰 Receitas: <span id="receitasMes">R$ 0,00</span>
   </div>
 
+
   <div class="resumo">
 
-      <h4>🏷️ Gastos por categoria</h4>
+    <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-bottom:10px;">
+
+      <h4 style="margin:0;">💳 Gastos por forma de pagamento</h4>
+    
+      <button
+        type="button"
+        onclick="mostrarInfoResumo('pagamento')"
+        style="width:22px; height:22px; min-width:22px; border-radius:50%; background:#1976d2; color:white; font-weight:bold; font-size:13px; padding:0;">
+        i
+      </button>
+    
+    </div>
 
       <div id="resumoCategorias">
           Nenhum gasto registrado.
@@ -81,9 +93,21 @@
 
   </div>
 
+
   <div class="resumo">
 
-      <h4>💳 Gastos por forma de pagamento</h4>
+    <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-bottom:10px;">
+
+      <h4 style="margin:0;">🏷️ Gastos por categoria</h4>
+    
+      <button
+    type="button"
+    onclick="mostrarInfoResumo('categoria')"
+    style="width:22px; height:22px; min-width:22px; border-radius:50%; background:#1976d2; color:white; font-weight:bold; font-size:13px; padding:0;">
+    i
+      </button>
+    
+    </div>
 
       <div id="resumoPagamentos">
           Nenhum gasto registrado.
@@ -285,16 +309,16 @@
           </button>
       
           <div class="mesSelecionado">
-      
+
             <span id="mesExibido"></span>
-      
+          
             <input
               type="month"
               id="filtroMes"
             />
-      
+          
           </div>
-      
+          
           <button
             type="button"
             class="btnMes"
@@ -572,6 +596,28 @@
 
 </section>
 
+<!-- POP-UP DE INFORMAÇÕES -->
+
+<div id="popupInfoResumo" class="popupInfoResumo">
+
+  <div class="caixaInfoResumo">
+
+    <button
+      type="button"
+      class="fecharInfoResumo"
+      onclick="fecharInfoResumo()">
+      ×
+    </button>
+
+    <h3 id="tituloInfoResumo">
+      ℹ️ Informações
+    </h3>
+
+    <p id="textoInfoResumo"></p>
+
+  </div>
+
+</div>
 
 <nav class="menuInferior">
 
