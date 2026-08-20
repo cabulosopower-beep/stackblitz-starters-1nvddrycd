@@ -60,6 +60,8 @@ const inputObservacao =
 const inputParcelas =
     document.getElementById("parcelas");
 
+const selectFormaPagamento =
+    document.getElementById("formaPagamento");
 
 const totalDespesasMes =
     document.getElementById("totalDespesasMes");
@@ -324,13 +326,23 @@ function editarRegistro(id){
     }
 
     inputDescricao.value = registro.descricao;
-    inputValor.value = moeda(registro.valor);
+    expressaoCalc = String(registro.valor);
+
+inputValor.value = expressaoCalc;
+
+atualizarTeclado();
+
     inputDataLancamento.value = registro.data.split("T")[0];
     selectTipo.value = registro.tipo;
     selectCategoria.value = registro.categoria;
     inputObservacao.value = registro.observacao;
 
+    selectFormaPagamento.value =
+    registro.formaPagamento || "";
+
     /* Recupera a quantidade original de parcelas */
+
+    parcelado.disabled = true;
 
 if(registro.parcela){
 
@@ -356,7 +368,7 @@ else{
 
     areaParcelas.style.display = "none";
 
-    inputParcelas.disabled = false;
+    inputParcelas.disabled = true;
 
 }
 
@@ -364,6 +376,13 @@ else{
 
 document.querySelector(".btnSalvar").innerText =
     "Atualizar Registro";
+
+    const botaoCancelar =
+    document.getElementById("btnCancelarEdicao");
+
+if(botaoCancelar){
+    botaoCancelar.style.display = "inline-block";
+}
 
     const avisoEdicao = document.getElementById("avisoEdicao");
 
@@ -466,6 +485,9 @@ form.addEventListener("submit", (evento) => {
 
     const observacao =
         inputObservacao.value.trim();
+
+    const formaPagamento =
+         selectFormaPagamento.value;
 
     const dataEscolhida =
         inputDataLancamento.value;
@@ -572,6 +594,9 @@ form.addEventListener("submit", (evento) => {
 
             item.categoria =
                 categoria;
+
+            item.formaPagamento =
+                formaPagamento;
 
             item.observacao =
                 observacao;
@@ -698,12 +723,17 @@ form.addEventListener("submit", (evento) => {
     ===================================================== */
 
     const confirmar =
-        confirm(
-            `Deseja salvar este lançamento?\n\n` +
-            `Descrição: ${descricao}\n` +
-            `Valor: R$ ${moeda(valor)}\n` +
-            `Categoria: ${categoria}`
-        );
+    confirm(
+        `Deseja salvar este lançamento?\n\n` +
+        `Descrição: ${descricao}\n` +
+        `Valor: R$ ${moeda(valor)}\n` +
+        `Categoria: ${categoria}\n` +
+        `Parcelado: ${
+            parcelado.value === "sim"
+            ? inputParcelas.value + "x"
+            : "Não"
+        }`
+    );
 
 
     if (!confirmar) {
@@ -728,6 +758,7 @@ form.addEventListener("submit", (evento) => {
             valor,
             tipo,
             categoria,
+            formaPagamento,
             observacao,
             agora
 
@@ -752,6 +783,8 @@ form.addEventListener("submit", (evento) => {
             tipo,
 
             categoria,
+
+            formaPagamento,
 
             observacao,
 
@@ -811,6 +844,7 @@ function criarParcelas({
     valor,
     tipo,
     categoria,
+    formaPagamento,
     observacao,
     agora
 }){
@@ -916,6 +950,8 @@ function limparFormulario(){
 
     inputParcelas.value =
         2;
+        inputParcelas.disabled = false;
+        parcelado.disabled = false;
 
     inputDataLancamento.value =
         new Date()
@@ -927,9 +963,39 @@ function limparFormulario(){
     document.querySelector(".btnSalvar").innerText =
         "Salvar Registro";
 
+        const botaoCancelar =
+    document.getElementById("btnCancelarEdicao");
+
+if(botaoCancelar){
+    botaoCancelar.style.display = "none";
 }
 
+}
 
+function cancelarEdicao(){
+
+    idEdicao = null;
+
+    limparFormulario();
+
+    const aviso =
+        document.getElementById("avisoEdicao");
+
+    if(aviso){
+        aviso.innerText = "";
+        aviso.style.display = "none";
+    }
+
+    const botaoCancelar =
+        document.getElementById("btnCancelarEdicao");
+
+    if(botaoCancelar){
+        botaoCancelar.style.display = "none";
+    }
+
+    mostrarTela("telaResumo");
+
+}
 
 /* ==========================================================
    CRIAÇÃO VISUAL DAS TRANSAÇÕES
@@ -966,6 +1032,12 @@ function criarTransacao(item){
                 <div class="info">
 
     ${item.categoria}
+
+    ${
+        item.formaPagamento
+        ? " • " + item.formaPagamento
+        : ""
+    }
 
     • 
 
@@ -1089,6 +1161,7 @@ function criarTransacao(item){
 
 function atualizarInicio(){
 
+
     const dados = carregarDados();
 
 
@@ -1096,26 +1169,26 @@ function atualizarInicio(){
     let despesas = 0;
     let pendentes = 0;
 
-    const agora = new Date();
+    const hoje = new Date();
 
+    const numeroMes = hoje.getMonth();
+    const anoAtual = hoje.getFullYear();
 
-    const mesAtual =
-        agora.toLocaleDateString(
+    const nomeMes =
+        hoje.toLocaleDateString(
             "pt-BR",
             {
-                month:"long",
-                year:"numeric"
+                month: "long",
+                year: "numeric"
             }
         );
-
 
     if(mesAtualInicio){
 
         mesAtualInicio.innerHTML =
-            "📅 " + mesAtual;
+            "📅 " + nomeMes;
 
     }
-
 
     if(quantidadeInicio){
 
@@ -1124,9 +1197,16 @@ function atualizarInicio(){
 
     }
 
-
     dados.forEach(item => {
 
+        const data = new Date(item.data);
+
+        if(
+            data.getMonth() !== numeroMes ||
+            data.getFullYear() !== anoAtual
+        ){
+            return;
+        }
 
         if(item.tipo === "receita"){
 
@@ -1134,11 +1214,9 @@ function atualizarInicio(){
 
         }
 
-
         if(item.tipo === "despesa"){
 
             despesas += Number(item.valor);
-
 
             if(item.status === "pendente"){
 
@@ -1148,21 +1226,16 @@ function atualizarInicio(){
 
         }
 
-
     });
 
-
     const saldo = receitas - despesas;
-
-
 
     if(saldoInicio){
 
         saldoInicio.innerHTML =
-            `📊 Saldo atual: R$ ${moeda(saldo)}`;
+            `📊 Saldo do mês: R$ ${moeda(saldo)}`;
 
     }
-
 
     if(receitasInicio){
 
@@ -1171,7 +1244,6 @@ function atualizarInicio(){
 
     }
 
-
     if(despesasInicio){
 
         despesasInicio.innerHTML =
@@ -1179,15 +1251,15 @@ function atualizarInicio(){
 
     }
 
-
     if(pendenciasInicio){
 
         pendenciasInicio.innerHTML =
-            `⚠️ Pendentes: R$ ${moeda(pendentes)}`;
+            `⚠️ Pendentes do mês: R$ ${moeda(pendentes)}`;
 
     }
 
     atualizarResumoInteligente();
+
 
 }
 
@@ -1209,6 +1281,7 @@ function atualizarResumoInteligente(){
 
 
     let categorias = {};
+    let pagamentos = {};
 
 
     dados.forEach(item => {
@@ -1233,8 +1306,15 @@ function atualizarResumoInteligente(){
                 +
                 Number(item.valor);
 
+                    const pagamento = item.formaPagamento || "Não informado";
+
+    pagamentos[pagamento] =
+        (pagamentos[pagamento] || 0)
+        + Number(item.valor);
+
+
             }
-            console.log(item.categoria, categorias);
+            
 
             if(item.tipo === "receita"){
 
@@ -1265,21 +1345,6 @@ function atualizarResumoInteligente(){
     }
 
 
-    for(let categoria in categorias){
-
-
-        if(categorias[categoria] > valorMaior){
-
-            valorMaior =
-                categorias[categoria];
-
-            categoriaMaior =
-                categoria;
-
-        }
-
-    }
-
 
 
     if(gastosMes){
@@ -1305,13 +1370,6 @@ function atualizarResumoInteligente(){
 
     }
 
-    console.log({
-        gastos,
-        receitas,
-        categorias,
-        categoriaMaior,
-        valorMaior
-    });
 
 
     const cardMaiorGasto = document.getElementById("maiorGasto");
@@ -1323,8 +1381,40 @@ if(cardMaiorGasto){
 
 }
 
+const resumoCategorias =
+    document.getElementById("resumoCategorias");
+
+if(resumoCategorias){
+
+    resumoCategorias.innerHTML =
+        Object.entries(categorias)
+        .map(([categoria, valor]) =>
+            `<div>🏷️ ${categoria}: R$ ${moeda(valor)}</div>`
+        )
+        .join("") || "Nenhum gasto registrado.";
 
 }
+
+
+const resumoPagamentos =
+    document.getElementById("resumoPagamentos");
+
+if(resumoPagamentos){
+
+    resumoPagamentos.innerHTML =
+        Object.entries(pagamentos)
+        .map(([pagamento, valor]) =>
+            `<div>💳 ${pagamento}: R$ ${moeda(valor)}</div>`
+        )
+        .join("") || "Nenhum gasto registrado.";
+
+}
+console.log("CATEGORIAS:", categorias);
+console.log("PAGAMENTOS:", pagamentos);
+
+}
+
+
 
 /* ==========================================================
    RENDERIZAÇÃO DO HISTÓRICO
@@ -1850,30 +1940,20 @@ function iniciarApp(){
         .toISOString()
         .split("T")[0];
 
-    const hoje =
-        new Date();
-
-
+    const hoje = new Date();
 
     filtroMes.value =
-
         hoje.getFullYear()
-
-        +
-
-        "-"
-
-        +
-
-        String(
+        + "-"
+        + String(
             hoje.getMonth() + 1
-        )
-        .padStart(2, "0");
-        
+        ).padStart(2, "0");
 
-        atualizarMesExibido();
-  
-        atualizarInicio();
+    atualizarMesExibido();
+
+    atualizarInicio();
+
+    atualizarResumoInteligente();
 
     renderizar();
 
@@ -3538,3 +3618,512 @@ function atualizarCategoriasLancamento(){
 }
 
 atualizarCategoriasLancamento();
+
+/* ==========================================================
+   FORMAS DE PAGAMENTO
+========================================================== */
+
+const STORAGE_FORMAS_PAGAMENTO = "controle_formas_pagamento";
+
+const formasPagamentoPadrao = [
+    { nome: "Dinheiro", icone: "💵" },
+    { nome: "Cartão de débito", icone: "💳" },
+    { nome: "Cartão de crédito", icone: "💳" }
+];
+
+
+function carregarFormasPagamento(){
+
+    let formas =
+        JSON.parse(
+            localStorage.getItem(STORAGE_FORMAS_PAGAMENTO)
+            || "null"
+        );
+
+    if(!formas){
+
+        formas = formasPagamentoPadrao;
+
+        localStorage.setItem(
+            STORAGE_FORMAS_PAGAMENTO,
+            JSON.stringify(formas)
+        );
+
+    }
+
+    return formas;
+
+}
+
+
+function salvarFormasPagamento(formas){
+
+    localStorage.setItem(
+        STORAGE_FORMAS_PAGAMENTO,
+        JSON.stringify(formas)
+    );
+
+}
+
+
+function atualizarFormasPagamentoLancamento(){
+
+    const select =
+        document.getElementById("formaPagamento");
+
+    if(!select){
+        return;
+    }
+
+    const valorAtual =
+        select.value;
+
+    const formas =
+        carregarFormasPagamento();
+
+    select.innerHTML =
+        '<option value="" selected disabled>Selecione...</option>';
+
+    formas.forEach(forma => {
+
+        const option =
+            document.createElement("option");
+
+        option.value =
+            forma.nome;
+
+        option.textContent =
+            `${forma.icone ? forma.icone + " " : ""}${forma.nome}`;
+
+        select.appendChild(option);
+
+    });
+
+    if(
+        formas.some(
+            forma => forma.nome === valorAtual
+        )
+    ){
+
+        select.value =
+            valorAtual;
+
+    }
+
+}
+
+
+function renderizarFormasPagamento(){
+
+    const lista =
+        document.getElementById(
+            "listaFormasPagamento"
+        );
+
+    if(!lista){
+        return;
+    }
+
+    const formas =
+        carregarFormasPagamento();
+
+    lista.innerHTML = "";
+
+    formas.forEach((forma, index) => {
+
+        const div =
+            document.createElement("div");
+
+        div.className =
+            "card";
+
+        div.innerHTML = `
+
+            <div style="
+                display:flex;
+                align-items:center;
+                justify-content:space-between;
+                gap:10px;
+            ">
+
+                <strong>
+                    ${forma.icone} ${forma.nome}
+                </strong>
+
+                <div style="
+                    display:flex;
+                    gap:6px;
+                ">
+
+                    <button
+                        class="btnEditar"
+                        onclick="editarFormaPagamento(${index})">
+
+                        ✏️
+
+                    </button>
+
+                    <button
+                        class="btnExcluir"
+                        onclick="excluirFormaPagamento(${index})">
+
+                        🗑️
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        `;
+
+        lista.appendChild(div);
+
+    });
+
+}
+
+
+function adicionarFormaPagamento(){
+
+    const nome =
+        prompt(
+            "Nome da nova forma de pagamento:"
+        );
+
+    if(!nome || !nome.trim()){
+        return;
+    }
+
+    const icone =
+        prompt(
+            "Escolha um emoji para a forma (opcional):",
+            ""
+        );
+
+    const formas =
+        carregarFormasPagamento();
+
+    formas.push({
+
+        nome:
+            nome.trim(),
+
+        icone:
+            icone || ""
+
+    });
+
+    salvarFormasPagamento(formas);
+
+    renderizarFormasPagamento();
+
+    atualizarFormasPagamentoLancamento();
+
+}
+
+
+function editarFormaPagamento(index){
+
+    const formas =
+        carregarFormasPagamento();
+
+    const forma =
+        formas[index];
+
+    const nomeAntigo =
+        forma.nome;
+
+    const novoNome =
+        prompt(
+            "Novo nome da forma de pagamento:",
+            nomeAntigo
+        );
+
+    if(!novoNome || !novoNome.trim()){
+        return;
+    }
+
+    const novoIcone =
+        prompt(
+            "Novo emoji:",
+            forma.icone
+        );
+
+    const nomeNovo =
+        novoNome.trim();
+
+    forma.nome =
+        nomeNovo;
+
+    forma.icone =
+        novoIcone || "";
+
+    salvarFormasPagamento(formas);
+
+
+    const dados =
+        carregarDados();
+
+    dados.forEach(item => {
+
+        if(
+            item.formaPagamento
+            ===
+            nomeAntigo
+        ){
+
+            item.formaPagamento =
+                nomeNovo;
+
+        }
+
+    });
+
+    salvarDados(dados);
+
+    renderizarFormasPagamento();
+
+    atualizarFormasPagamentoLancamento();
+
+    atualizarInicio();
+
+    renderizar();
+
+}
+
+
+function excluirFormaPagamento(index){
+
+    const formas =
+        carregarFormasPagamento();
+
+    const forma =
+        formas[index];
+
+    const dados =
+        carregarDados();
+
+    const quantidade =
+        dados.filter(
+            item =>
+                item.formaPagamento
+                ===
+                forma.nome
+        ).length;
+
+
+    if(quantidade === 0){
+
+        if(
+            !confirm(
+                `Excluir a forma "${forma.nome}"?`
+            )
+        ){
+
+            return;
+
+        }
+
+        formas.splice(index, 1);
+
+        salvarFormasPagamento(formas);
+
+        renderizarFormasPagamento();
+
+        atualizarFormasPagamentoLancamento();
+
+        return;
+
+    }
+
+
+    const opcao =
+        prompt(
+            `A forma "${forma.nome}" possui ${quantidade} lançamento(s).\n\n` +
+            `Digite:\n\n` +
+            `1 - Transferir para outra forma\n` +
+            `2 - Deixar os lançamentos sem forma\n` +
+            `3 - Cancelar`
+        );
+
+
+    if(
+        opcao === "3"
+        ||
+        opcao === null
+    ){
+
+        return;
+
+    }
+
+
+    if(opcao === "1"){
+
+        const outrasFormas =
+            formas.filter(
+                (_, i) => i !== index
+            );
+
+
+        if(
+            outrasFormas.length === 0
+        ){
+
+            alert(
+                "Não existe outra forma para transferir os lançamentos."
+            );
+
+            return;
+
+        }
+
+
+        let texto =
+            "Escolha a nova forma:\n\n";
+
+
+        outrasFormas.forEach(
+            (forma, i) => {
+
+                texto +=
+                    `${i + 1} - ${forma.icone ? forma.icone + " " : ""}${forma.nome}\n`;
+
+            }
+        );
+
+
+        const escolha =
+            Number(
+                prompt(texto)
+            );
+
+
+        const novaForma =
+            outrasFormas[escolha - 1];
+
+
+        if(!novaForma){
+
+            alert(
+                "Opção inválida."
+            );
+
+            return;
+
+        }
+
+
+        dados.forEach(item => {
+
+            if(
+                item.formaPagamento
+                ===
+                forma.nome
+            ){
+
+                item.formaPagamento =
+                    novaForma.nome;
+
+            }
+
+        });
+
+
+        salvarDados(dados);
+
+    }
+
+
+    if(opcao === "2"){
+
+        dados.forEach(item => {
+
+            if(
+                item.formaPagamento
+                ===
+                forma.nome
+            ){
+
+                item.formaPagamento =
+                    "";
+
+            }
+
+        });
+
+
+        salvarDados(dados);
+
+    }
+
+
+    if(
+        opcao !== "1"
+        &&
+        opcao !== "2"
+    ){
+
+        alert(
+            "Opção inválida."
+        );
+
+        return;
+
+    }
+
+
+    formas.splice(index, 1);
+
+    salvarFormasPagamento(formas);
+
+    renderizarFormasPagamento();
+
+    atualizarFormasPagamentoLancamento();
+
+    atualizarInicio();
+
+    renderizar();
+
+}
+
+
+const mostrarTelaComFormasPagamento =
+    mostrarTela;
+
+
+mostrarTela = function(
+    id,
+    botao = null
+){
+
+    mostrarTelaComFormasPagamento(
+        id,
+        botao
+    );
+
+    if(
+        id === "telaFormasPagamento"
+    ){
+
+        renderizarFormasPagamento();
+
+    }
+
+};
+
+
+atualizarFormasPagamentoLancamento();
+
+/* ==========================================================
+   FINALIZAÇÃO - FORMAS DE PAGAMENTO
+========================================================== */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    atualizarFormasPagamentoLancamento();
+
+});
+
+

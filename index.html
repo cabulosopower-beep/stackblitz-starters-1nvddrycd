@@ -16,10 +16,11 @@
       <!-- TÍTULO -->
       <!-- ========================================= -->
       
-      <h1>💰 Controle Financeiro</h1>
+      <body>
 
-  <body>
-    <div class="container">
+        <h1>💰 Controle Financeiro</h1>
+      
+        <div class="container">
 
       <section id="telaInicio" class="tela ativa">
 
@@ -58,49 +59,39 @@
 
 </div>
     
-<div class="card resumoInteligente">
+<div class="resumoInteligente"></div>
 
   <h3>📆 Este mês</h3>
 
-  <div id="gastosMes">
-      💸 Gastos: R$ 0,00
+  <div class="resumo resumoDespesas">
+      💸 Gastos: <span id="gastosMes">R$ 0,00</span>
   </div>
 
-  <div id="receitasMes">
-      💰 Receitas: R$ 0,00
+  <div class="resumo resumoReceitas">
+      💰 Receitas: <span id="receitasMes">R$ 0,00</span>
   </div>
 
-  <div id="resultadoMes">
-      📊 Resultado: R$ 0,00
+  <div class="resumo">
+
+      <h4>🏷️ Gastos por categoria</h4>
+
+      <div id="resumoCategorias">
+          Nenhum gasto registrado.
+      </div>
+
   </div>
 
-  <div id="maiorGasto">
-      🏆 Maior gasto: -
+  <div class="resumo">
+
+      <h4>💳 Gastos por forma de pagamento</h4>
+
+      <div id="resumoPagamentos">
+          Nenhum gasto registrado.
+      </div>
+
   </div>
 
 </div>
-
-            <div class="botoes">
-    
-                <button
-                    class="btnSalvar"
-                    onclick="mostrarTela('telaLancamentos')">
-    
-                    ➕ Novo lançamento
-    
-                </button>
-    
-                <button
-                    class="btnEditar"
-                    onclick="mostrarTela('telaResumo')">
-    
-                    📋 Ver lançamentos
-    
-                </button>
-    
-            </div>
-    
-        </div>
     
     </section>
 
@@ -109,6 +100,7 @@
       <!-- ========================================= -->
       <!-- NOVA MOVIMENTAÇÃO -->
       <!-- ========================================= -->
+
 
       <section id="telaLancamentos" class="tela">
 
@@ -173,8 +165,8 @@
           </div>
 
           <label for="dataLancamento"> Data </label>
-
-          <input type="date" id="dataLancamento" required />
+          
+          <input type="date" id="dataLancamento" required />     
 
           <label for="tipo">Tipo</label>
 
@@ -197,6 +189,12 @@
             <option>Outros</option>
           </select>
 
+          <label for="formaPagamento">Forma de pagamento</label>
+
+          <select id="formaPagamento">
+          <option value="" selected disabled>Selecione...</option>
+          </select>
+
           <label for="observacao">Observação</label>
           <input type="text" id="observacao" />
 
@@ -216,9 +214,25 @@
 
           <div class="botoes">
             <div id="avisoEdicao" class="avisoEdicao"></div>
-            <button type="submit" class="btnSalvar">Salvar Registro</button>
-            <button type="reset" class="btnLimpar">Limpar</button>
-          </div>
+        
+            <button type="submit" class="btnSalvar">
+                Salvar Registro
+            </button>
+        
+            <button
+                type="button"
+                id="btnCancelarEdicao"
+                class="btnCancelarEdicao"
+                onclick="cancelarEdicao()"
+                style="display:none"
+            >
+                Cancelar edição
+            </button>
+        
+            <button type="reset" class="btnLimpar">
+                Limpar
+            </button>
+        </div>
           
           <div id="mensagem"></div>
 
@@ -455,6 +469,11 @@
             <span>›</span>
         </button>
 
+        <button class="itemConfig" onclick="mostrarTela('telaFormasPagamento')">
+          <span>💳 Formas de pagamento</span>
+          <span>›</span>
+        </button>
+
       </div>
   
       <input
@@ -521,6 +540,39 @@
 
 </section>
 
+<!-- ========================================= -->
+<!-- FORMAS DE PAGAMENTO -->
+<!-- ========================================= -->
+
+<section id="telaFormasPagamento" class="tela">
+
+  <div class="card">
+
+    <button
+      class="btnVoltarMeta"
+      onclick="mostrarTela('telaConfiguracoes')">
+
+      ← Voltar para configurações
+
+    </button>
+
+    <h3>💳 Formas de pagamento</h3>
+
+    <button
+      class="btnSalvar btnNovaMeta"
+      onclick="adicionarFormaPagamento()">
+
+      ➕ Nova forma de pagamento
+
+    </button>
+
+  </div>
+
+  <div id="listaFormasPagamento"></div>
+
+</section>
+
+
 <nav class="menuInferior">
 
   <button
@@ -571,6 +623,8 @@
   </button>
 
 </nav>
+
+</div>
 
     <script src="js/app.js"></script>
 
