@@ -522,7 +522,12 @@ form.addEventListener("submit", (evento) => {
 
         const dataOriginal =
             new Date(registro.data);
-
+         
+            const dataOriginalInput =
+            registro.data.split("T")[0];
+        
+        const dataFoiAlterada =
+            dataEscolhida !== dataOriginalInput;
 
         /* Procura todas as parcelas do mesmo grupo */
 
@@ -581,31 +586,32 @@ form.addEventListener("submit", (evento) => {
            FUNÇÃO PARA APLICAR AS ALTERAÇÕES
         ================================================= */
 
-        function aplicarAlteracoes(item, novaData) {
+        function aplicarAlteracoes(item, novaData, manterDataOriginal = false) {
 
-            item.descricao =
-                descricao;
-
-            item.valor =
-                valor;
-
-            item.tipo =
-                tipo;
-
-            item.categoria =
-                categoria;
-
-            item.formaPagamento =
-                formaPagamento;
-
-            item.observacao =
-                observacao;
-
-            item.data =
-                novaData.toISOString();
-
+            item.descricao = descricao;
+        
+            item.valor = valor;
+        
+            item.tipo = tipo;
+        
+            item.categoria = categoria;
+        
+            item.formaPagamento = formaPagamento;
+        
+            item.observacao = observacao;
+        
+        
+            /*
+             * Só altera a data se realmente for necessário.
+             */
+        
+            if (!manterDataOriginal) {
+        
+                item.data = novaData.toISOString();
+        
+            }
+        
         }
-
 
         /* =================================================
            SOMENTE ESTA PARCELA
@@ -615,11 +621,11 @@ form.addEventListener("submit", (evento) => {
 
             aplicarAlteracoes(
                 registro,
-                agora
+                agora,
+                !dataFoiAlterada
             );
-
+        
         }
-
 
         /* =================================================
            ESTA + FUTURAS
@@ -633,28 +639,52 @@ form.addEventListener("submit", (evento) => {
                         String(item.id) ===
                         String(registro.id)
                 );
-
-
+        
+        
             parcelasGrupo
                 .slice(indiceAtual)
                 .forEach((item, indice) => {
-
+        
+                    /*
+                     * Se a data não foi alterada,
+                     * mantém exatamente a data original
+                     * de cada parcela.
+                     */
+        
+                    if (!dataFoiAlterada) {
+        
+                        aplicarAlteracoes(
+                            item,
+                            new Date(item.data),
+                            true
+                        );
+        
+                        return;
+        
+                    }
+        
+        
+                    /*
+                     * Se a data foi alterada,
+                     * recalcula as parcelas futuras
+                     * a partir da nova data.
+                     */
+        
                     const novaData =
                         new Date(agora);
-
+        
                     novaData.setMonth(
                         novaData.getMonth() + indice
                     );
-
+        
                     aplicarAlteracoes(
                         item,
                         novaData
                     );
-
+        
                 });
-
+        
         }
-
 
         /* =================================================
            TODAS AS PARCELAS
@@ -664,22 +694,45 @@ form.addEventListener("submit", (evento) => {
 
             parcelasGrupo.forEach(
                 (item, indice) => {
-
+        
+                    /*
+                     * Se a data não foi alterada,
+                     * mantém a data original de cada parcela.
+                     */
+        
+                    if (!dataFoiAlterada) {
+        
+                        aplicarAlteracoes(
+                            item,
+                            new Date(item.data),
+                            true
+                        );
+        
+                        return;
+        
+                    }
+        
+        
+                    /*
+                     * Se a data foi alterada,
+                     * reorganiza as datas das parcelas.
+                     */
+        
                     const novaData =
                         new Date(agora);
-
+        
                     novaData.setMonth(
                         novaData.getMonth() + indice
                     );
-
+        
                     aplicarAlteracoes(
                         item,
                         novaData
                     );
-
+        
                 }
             );
-
+        
         }
 
 
@@ -849,34 +902,60 @@ function criarParcelas({
     agora
 }){
 
-
     const quantidade =
-    Number(inputParcelas.value);
+        Number(inputParcelas.value);
+
+    const valorParcela =
+        Number(valor);
+
+    const diaOriginal =
+        agora.getDate();
 
 
+    for(
+        let i = 0;
+        i < quantidade;
+        i++
+    ){
 
-    const valorParcela = Number(valor);
+        const ano =
+            agora.getFullYear();
+
+        const mes =
+            agora.getMonth() + i;
 
 
+        /*
+         * Descobre o último dia do mês
+         */
+        const ultimoDiaDoMes =
+            new Date(
+                ano,
+                mes + 1,
+                0
+            ).getDate();
 
-        for(
-            let i = 0;
-            i < quantidade;
-            i++
-        ){
+
+        /*
+         * Mantém o dia original,
+         * mas ajusta caso o mês não possua esse dia.
+         */
+        const dia =
+            Math.min(
+                diaOriginal,
+                ultimoDiaDoMes
+            );
 
 
         const dataParcela =
-            new Date(agora);
-
-
-
-        dataParcela.setMonth(
-            dataParcela.getMonth()
-            +
-            i
-        );
-
+            new Date(
+                ano,
+                mes,
+                dia,
+                12,
+                0,
+                0
+            );
 
 
         dados.push({
@@ -884,45 +963,36 @@ function criarParcelas({
             id:
                 String(gerarID()),
 
-
             grupo:
                 grupoID,
 
-
             descricao,
-
 
             valor:
                 valorParcela,
 
-
             tipo,
-
 
             categoria,
 
+            formaPagamento,
 
             observacao,
-
 
             parcela:
                 `${i + 1}/${quantidade}`,
 
-
             status:
                 "pendente",
-
 
             data:
                 dataParcela.toISOString()
 
         });
 
-
     }
 
 }
-
 
 
 /* ==========================================================
