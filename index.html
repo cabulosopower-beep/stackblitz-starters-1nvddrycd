@@ -61,7 +61,7 @@
     
 <div class="resumoInteligente">
 
-  <h3>📆 Este mês</h3>
+  <h3 class="tituloEsteMes">📆 Este mês</h3>
 
   <div class="resumo resumoDespesas">
       💸 Gastos: <span id="gastosMes">R$ 0,00</span>
@@ -84,12 +84,13 @@
         style="width:22px; height:22px; min-width:22px; border-radius:50%; background:#1976d2; color:white; font-weight:bold; font-size:13px; padding:0;">
         i
       </button>
-    
-    </div>
 
-      <div id="resumoCategorias">
-          Nenhum gasto registrado.
       </div>
+
+      <div 
+      id="resumoPagamentos">
+        Nenhum gasto registrado.
+    </div>
 
   </div>
 
@@ -109,9 +110,9 @@
     
     </div>
 
-      <div id="resumoPagamentos">
-          Nenhum gasto registrado.
-      </div>
+    <div id="resumoCategorias">
+      Nenhum gasto registrado.
+  </div>
 
   </div>
 
@@ -296,39 +297,44 @@
       <!-- FILTROS -->
       <!-- ========================================= -->
 
-      <div class="card">
-        <h3>Filtro</h3>
-      
-        <div class="filtro">
-      
-          <button
-            type="button"
-            class="btnMes"
-            onclick="mudarMes(-1)">
-            ◀
-          </button>
-      
-          <div class="mesSelecionado">
+      <!-- ========================================= -->
+<!-- MÊS -->
+<!-- ========================================= -->
 
-            <span id="mesExibido"></span>
-          
-            <input
-              type="month"
-              id="filtroMes"
-            />
-          
-          </div>
-          
-          <button
-            type="button"
-            class="btnMes"
-            onclick="mudarMes(1)">
-            ▶
-          </button>
-      
-        </div>
-      
-      </div>
+<div class="card">
+
+  <h3>📅 Mês</h3>
+
+  <div class="filtro">
+
+    <button
+      type="button"
+      class="btnMes"
+      onclick="mudarMes(-1)">
+      ◀
+    </button>
+
+    <div class="mesSelecionado">
+
+      <span id="mesExibido"></span>
+
+      <input
+        type="month"
+        id="filtroMes"
+      />
+
+    </div>
+
+    <button
+      type="button"
+      class="btnMes"
+      onclick="mudarMes(1)">
+      ▶
+    </button>
+
+  </div>
+
+</div>
 
       
       <!-- ========================================= -->
@@ -622,21 +628,11 @@
 <nav class="menuInferior">
 
   <button
-      class="itemMenu ativo"
+      class="itemMenu"
       onclick="mostrarTela('telaInicio', this)">
 
       <div class="iconeMenu">🏠</div>
       <span>Início</span>
-
-  </button>
-
-
-  <button
-      class="itemMenu"
-      onclick="mostrarTela('telaLancamentos', this)">
-
-      <div class="iconeMenu">💳</div>
-      <span>Lançamentos</span>
 
   </button>
 
@@ -650,14 +646,27 @@
 
   </button>
 
+
+  <!-- BOTÃO CENTRAL -->
   <button
-  class="itemMenu"
-  onclick="mostrarTela('telaMetas', this)">
+      class="itemMenu botaoAdicionar"
+      onclick="mostrarTela('telaLancamentos', this)">
 
-  <div class="iconeMenu">🎯</div>
-  <span>Metas</span>
+      <div class="iconeMenu">＋</div>
+      <span>Lançamento</span>
 
-</button>
+  </button>
+
+
+  <button
+      class="itemMenu"
+      onclick="mostrarTela('telaMetas', this)">
+
+      <div class="iconeMenu">🎯</div>
+      <span>Metas</span>
+
+  </button>
+
 
   <button
       class="itemMenu"

@@ -308,6 +308,13 @@ button:hover {
   color: #1565c0;
 }
 
+.parcelaTitulo {
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.75;
+  margin-left: 5px;
+}
+
 /* =======================================================
    TEMA ESCURO
 ======================================================= */
@@ -548,6 +555,11 @@ body.dark .itemMenu.ativo {
    HISTÓRICO COMPACTO
 ======================================================= */
 
+/* Centraliza o título do mês na tela de Transações */
+#telaResumo .card h3 {
+  text-align: center;
+}
+
 .transacao {
 
   margin-bottom: 8px;
@@ -636,6 +648,7 @@ body.dark .itemMenu.ativo {
   cursor: text;
 
 }
+
 
 /* ==========================================
    CONFIGURAÇÕES
@@ -1076,16 +1089,28 @@ body.dark .itemHistoricoMeta {
   flex-direction: column;
   gap: 10px;
   margin-top: 15px;
+  width: 100%;
 }
 
 #resumoInicio .resumo {
-  padding: 14px 16px;
+  width: 100%;
+  min-height: 52px;
+  padding: 15px 16px;
+  margin-bottom: 10px;
+
+  display: flex;
+  align-items: center;
+
   border-radius: 12px;
   border: 1px solid #e0e0e0;
   border-left: 5px solid #ccc;
-  background: #fafafa;
+
+  background: #ffffff;
+
+  font-size: 18px;
   font-weight: 600;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
 }
 
 /* Saldo */
@@ -1182,54 +1207,23 @@ body.dark .itemHistoricoMeta {
     margin-bottom: 15px;
 }
 
-/* ==========================================================
-   RESUMO DAS TRANSAÇÕES - VISUAL MELHORADO
-========================================================== */
-
-#telaResumo .resumo {
-    padding: 15px 16px;
-    margin-bottom: 10px;
-    border-radius: 12px;
-    border: 1px solid #e0e0e0;
-    background: #ffffff;
-    font-weight: 600;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+.mesSelecionado {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
 }
 
-/* Despesas */
-#telaResumo .resumoDespesas {
-    border-left: 5px solid #e53935;
-}
-
-/* Receitas */
-#telaResumo .resumoReceitas {
-    border-left: 5px solid #43a047;
-}
-
-/* Saldo */
-#telaResumo .saldo {
-    border-left: 5px solid #2196f3;
-}
-
-/* Pendentes */
-#telaResumo .resumoPendencias {
-    border-left: 5px solid #fbc02d;
-}
-
-/* Título do resumo */
-#telaResumo .card h3 {
-    margin-bottom: 15px;
-}
-
-.avisoEdicao {
-  display: none;
-  margin-bottom: 12px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  background: #fff3cd;
-  border-left: 4px solid #fbc02d;
-  font-size: 14px;
+#mesExibido {
+  font-size: 18px;
   font-weight: 600;
+  text-align: center;
+  width: 100%;
+}
+
+.tituloEsteMes {
+  text-align: center;
 }
 
 /* ==========================================================
@@ -1712,4 +1706,37 @@ body.dark .fecharInfoResumo {
 
 .btnInfoResumo:hover {
   background: #d0d0d0 !important;
+}
+
+/* ========================================= */
+/* BOTÃO CENTRAL - NOVO LANÇAMENTO */
+/* ========================================= */
+
+.botaoAdicionar .iconeMenu {
+  width: 48px;
+  height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: -10px auto 3px;
+
+  border-radius: 50%;
+
+  background: rgb(238, 157, 6);
+  color: white;
+
+  font-size: 32px;
+  font-weight: 300;
+
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+
+  border: 4px solid white;
+
+  line-height: 1;
+}
+
+.botaoAdicionar:active .iconeMenu {
+  transform: scale(0.90);
 }

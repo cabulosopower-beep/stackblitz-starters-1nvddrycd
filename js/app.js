@@ -335,7 +335,7 @@ atualizarTeclado();
     inputDataLancamento.value = registro.data.split("T")[0];
     selectTipo.value = registro.tipo;
     selectCategoria.value = registro.categoria;
-    inputObservacao.value = registro.observacao;
+    inputObservacao.value = registro.observacao || "";
 
     selectFormaPagamento.value =
     registro.formaPagamento || "";
@@ -1092,49 +1092,43 @@ function criarTransacao(item){
 
         <div class="linha">
         
-            <div>
+        <div class="titulo">
+        ${item.descricao}
+    
+        ${
+            item.parcela
+            ? `<span class="parcelaTitulo">• ${item.parcela}</span>`
+            : ""
+        }
+    </div>
         
-                <div class="titulo">
-                    ${item.descricao}
-                </div>
         
-        
-                <div class="info">
+    <div class="info">
 
-    ${item.categoria}
+    ${item.categoria || "Sem categoria"}
 
     ${
         item.formaPagamento
-        ? " • " + item.formaPagamento
+        ? " | " + item.formaPagamento
         : ""
     }
 
-    • 
-
-    ${new Date(item.data).toLocaleDateString("pt-BR")}
-
-    ${
-        item.parcela
-        ?
-        " • " + item.parcela
-        :
-        ""
-    }
+    | ${new Date(item.data).toLocaleDateString("pt-BR")}
 
 </div>
 
 
-<div class="info observacaoCompacta">
-
-    Obs:
-
-    <span
-        class="campoObservacao"
-        contenteditable="true"
-        onblur="salvarObservacao('${item.id}', this.innerText)"
-    >${item.observacao || "Adicionar observação..."}</span>
-
-</div>
+${
+    item.observacao && item.observacao.trim() !== ""
+    ?
+    `
+    <div class="info observacaoCompacta">
+        📝 ${item.observacao}
+    </div>
+    `
+    :
+    ""
+}
         
             </div>
         
