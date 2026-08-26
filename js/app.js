@@ -1018,10 +1018,9 @@ function limparFormulario(){
     areaParcelas.style.display =
         "none";
 
-    inputParcelas.value =
-        2;
         inputParcelas.disabled = false;
         parcelado.disabled = false;
+        inputParcelas.value = "";
 
     inputDataLancamento.value =
         new Date()
@@ -1074,146 +1073,151 @@ function cancelarEdicao(){
 
 function criarTransacao(item){
 
-
     const div =
         document.createElement("div");
-
 
     div.className =
         "transacao";
 
-
     const dataHora =
         formatarData(item.data);
 
+    div.innerHTML = `
+
+        <!-- PRIMEIRA LINHA -->
+        <div class="linha linhaPrincipal">
+
+            <div class="titulo tituloTransacao">
+
+                <span class="descricaoTransacao">
+                    ${item.descricao}
+                </span>
+
+                ${
+                    item.parcela
+                    ?
+                    `<span class="parcelaTitulo">
+                        ${item.parcela}
+                    </span>`
+                    :
+                    ""
+                }
+
+            </div>
+
+            <div class="${
+                item.tipo === "receita"
+                ?
+                "valorReceita"
+                :
+                "valorDespesa"
+            } valorTransacao">
+
+                R$ ${moeda(item.valor)}
+
+            </div>
+
+        </div>
 
 
-        div.innerHTML = `
+        <!-- SEGUNDA LINHA -->
+        <div class="info">
 
-        <div class="linha">
-        
-        <div class="titulo">
-        ${item.descricao}
-    
-        ${
-            item.parcela
-            ? `<span class="parcelaTitulo">• ${item.parcela}</span>`
-            : ""
-        }
-    </div>
-        
-        
-    <div class="info">
+${
+    item.categoria
+    ? item.categoria
+    : ""
+}
 
-    ${item.categoria || "Sem categoria"}
+${
+    item.formaPagamento
+    ? (item.categoria ? " | " : "") + item.formaPagamento
+    : ""
+}
 
-    ${
-        item.formaPagamento
-        ? " | " + item.formaPagamento
-        : ""
-    }
+${
+    item.categoria || item.formaPagamento
+    ? " | "
+    : ""
+}
 
-    | ${new Date(item.data).toLocaleDateString("pt-BR")}
+${new Date(item.data).toLocaleDateString("pt-BR")}
 
 </div>
 
-
-${
-    item.observacao && item.observacao.trim() !== ""
-    ?
-    `
-    <div class="info observacaoCompacta">
-        📝 ${item.observacao}
-    </div>
-    `
-    :
-    ""
-}
-        
-            </div>
-        
-        
-        
-            <div>
-        
-                <div class="${
-                    item.tipo === "receita"
-                    ?
-                    "valorReceita"
-                    :
-                    "valorDespesa"
-                }">
-        
-                    R$ ${moeda(item.valor)}
-        
-                </div>
-        
-            </div>
-        
-        
-        </div>
-        
-        
-        
-        <div class="acoesTransacao">
-        
-        <button
-            onclick="alterarStatus('${item.id}')"
-            class="${
-                item.status === "pago"
-                ?
-                "btnPago"
-                :
-                "btnPagar"
-            }"
-        >
-        
+        <!-- OBSERVAÇÃO -->
         ${
-            item.status === "pago"
+            item.observacao &&
+            item.observacao.trim() !== ""
             ?
-            "Pago"
+            `
+            <div class="info observacaoCompacta">
+                📝 ${item.observacao}
+            </div>
+            `
             :
-            "Pagar"
+            ""
         }
-        
-        </button>
-        
-        
-        <button
-            class="btnMenu"
-            onclick="toggleMenu('${item.id}')"
-        >
-        
-        ⋮
-        
-        </button>
-        
-        
-        <div
-        class="menuAcoes"
-        id="menu-${item.id}"
-        >
-        
-        <button onclick="editarRegistro('${item.id}')">
-        ✏️ Editar
-        </button>
-        
-        <button onclick="excluirRegistro('${item.id}')">
-        🗑️ Excluir
-        </button>
-        
-        <button onclick="excluirGrupo('${item.id}')">
-        🗑️ Excluir tudo
-        </button>
-        
-        </div>
-        
-        
-        </div>
-        
-        `;
 
-    
+
+        <!-- AÇÕES -->
+        <div class="acoesTransacao">
+
+            <button
+                onclick="alterarStatus('${item.id}')"
+                class="${
+                    item.status === "pago"
+                    ?
+                    "btnPago"
+                    :
+                    "btnPagar"
+                }"
+            >
+
+                ${
+                    item.status === "pago"
+                    ?
+                    "Pago"
+                    :
+                    "Pagar"
+                }
+
+            </button>
+
+
+            <button
+                class="btnMenu"
+                onclick="toggleMenu('${item.id}')"
+            >
+
+                ⋮
+
+            </button>
+
+
+            <div
+                class="menuAcoes"
+                id="menu-${item.id}"
+            >
+
+                <button onclick="editarRegistro('${item.id}')">
+                    ✏️ Editar
+                </button>
+
+                <button onclick="excluirRegistro('${item.id}')">
+                    🗑️ Excluir
+                </button>
+
+                <button onclick="excluirGrupo('${item.id}')">
+                    🗑️ Excluir tudo
+                </button>
+
+            </div>
+
+        </div>
+
+    `;
+
     return div;
 
 }

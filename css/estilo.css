@@ -630,18 +630,6 @@ body.dark .itemMenu.ativo {
 
 }
 
-.observacaoCompacta {
-
-  max-width: 250px;
-
-  white-space: nowrap;
-
-  overflow: hidden;
-
-  text-overflow: ellipsis;
-
-}
-
 
 .observacaoCompacta span {
 
@@ -1739,4 +1727,87 @@ body.dark .fecharInfoResumo {
 
 .botaoAdicionar:active .iconeMenu {
   transform: scale(0.90);
+}
+
+/* ==========================================================
+   NOVO PADRÃO DO CARD DO HISTÓRICO
+========================================================== */
+
+.linhaPrincipal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+
+.tituloTransacao {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+
+.descricaoTransacao {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.parcelaTitulo {
+  flex-shrink: 0;
+  margin-left: 0;
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+.valorTransacao {
+  flex-shrink: 0;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.infoTransacao {
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+/* Observação */
+
+.observacaoCompacta {
+  max-width: 100%;
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+/* Ajuste para telas pequenas */
+
+@media (max-width: 480px) {
+
+  .linhaPrincipal {
+    gap: 6px;
+  }
+
+  .tituloTransacao {
+    font-size: 15px;
+  }
+
+  .valorTransacao {
+    font-size: 14px;
+  }
+
+  .parcelaTitulo {
+    font-size: 11px;
+  }
+
 }
