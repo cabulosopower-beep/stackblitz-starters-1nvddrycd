@@ -13,6 +13,8 @@
 const STORAGE = "controle_financeiro";
 let idEdicao = null;
 
+const STORAGE_RECORRENTES = "controle_recorrencias";
+
 const MSG_EXCLUIR_REGISTRO =
     "Deseja excluir este registro?";
 
@@ -145,16 +147,15 @@ function calcularExpressao(valor) {
 ========================================================== */
 
 
-filtroMes.addEventListener(
-    "change",
-    () => {
+filtroMes.addEventListener("change", () => {
 
-        atualizarMesExibido();
+    atualizarMesExibido();
 
-        renderizar();
+    gerarRecorrenciasDoMes();
 
-    }
-);
+    renderizar();
+
+});
 
 function atualizarMesExibido() {
 
@@ -208,15 +209,16 @@ function mudarMes(direcao) {
         data.getFullYear();
 
     const novoMes =
-        String(data.getMonth() + 1)
-            .padStart(2, "0");
+        String(data.getMonth() + 1).padStart(2, "0");
 
     filtroMes.value =
         `${novoAno}-${novoMes}`;
 
-    atualizarMesExibido();
+        atualizarMesExibido();
 
-    renderizar();
+        gerarRecorrenciasDoMes();
+        
+        renderizar();
 
 }
 
@@ -230,17 +232,21 @@ ordenacao.addEventListener(
     renderizar
 );
 
-parcelado.addEventListener(
-    "change",
-    () => {
+parcelado.addEventListener("change", () => {
 
-        areaParcelas.style.display =
-            parcelado.value === "sim"
-                ? "block"
-                : "none";
+    if (parcelado.value === "sim") {
+
+        // Parcelado
+        areaParcelas.style.display = "block";
+
+    } else {
+
+        // Não ou Recorrente
+        areaParcelas.style.display = "none";
 
     }
-);
+
+});
 
 
 
@@ -266,6 +272,171 @@ function salvarDados(dados){
         STORAGE,
         JSON.stringify(dados)
     );
+
+}
+
+function carregarRecorrencias(){
+
+    return JSON.parse(
+        localStorage.getItem(STORAGE_RECORRENTES)
+        || "[]"
+    );
+
+}
+
+function salvarRecorrencias(recorrencias){
+
+    localStorage.setItem(
+        STORAGE_RECORRENTES,
+        JSON.stringify(recorrencias)
+    );
+
+}
+
+function gerarRecorrenciasDoMes(){
+
+    const recorrencias = carregarRecorrencias();
+    const dados = carregarDados();
+
+    if (!recorrencias.length) return;
+
+    if (!filtroMes || !filtroMes.value) return;
+
+    const [ano, mesNumero] =
+        filtroMes.value.split("-").map(Number);
+
+    const mes = mesNumero - 1;
+
+    let alterou = false;
+
+    recorrencias.forEach(recorrencia => {
+
+        const inicio =
+            new Date(recorrencia.inicio);
+
+        const inicioAno =
+            inicio.getFullYear();
+
+        const inicioMes =
+            inicio.getMonth();
+
+        if (
+            ano < inicioAno ||
+            (
+                ano === inicioAno &&
+                mes < inicioMes
+            )
+        ){
+            return;
+        }
+
+        const chaveMes =
+            `${ano}-${String(mes + 1).padStart(2, "0")}`;
+
+        if (
+            recorrencia.excluidos &&
+            recorrencia.excluidos.includes(chaveMes)
+        ){
+            return;
+        }
+
+        if (
+            recorrencia.fim &&
+            chaveMes > recorrencia.fim
+        ){
+            return;
+        }
+
+        const jaExiste =
+            dados.some(item => {
+
+                if (
+                    item.recorrenciaId !==
+                    recorrencia.id
+                ){
+                    return false;
+                }
+
+                const dataItem =
+                    new Date(item.data);
+
+                return (
+                    dataItem.getFullYear() === ano &&
+                    dataItem.getMonth() === mes
+                );
+
+            });
+
+        if (jaExiste) return;
+
+        const ultimoDia =
+            new Date(
+                ano,
+                mes + 1,
+                0
+            ).getDate();
+
+        const dia =
+            Math.min(
+                recorrencia.dia,
+                ultimoDia
+            );
+
+        const dataRecorrencia =
+            new Date(
+                ano,
+                mes,
+                dia,
+                12,
+                0,
+                0
+            );
+
+        dados.push({
+
+            id: String(gerarID()),
+
+            grupo: recorrencia.id,
+
+            recorrenciaId:
+                recorrencia.id,
+
+            recorrente: true,
+
+            descricao:
+                recorrencia.descricao,
+
+            valor:
+                recorrencia.valor,
+
+            tipo:
+                recorrencia.tipo,
+
+            categoria:
+                recorrencia.categoria,
+
+            formaPagamento:
+                recorrencia.formaPagamento,
+
+            observacao:
+                recorrencia.observacao,
+
+            parcela: "",
+
+            status: "pendente",
+
+            data:
+                dataRecorrencia.toISOString()
+
+        });
+
+        alterou = true;
+
+    });
+
+    if (alterou){
+        salvarDados(dados);
+    }
 
 }
 
@@ -344,33 +515,42 @@ atualizarTeclado();
 
     parcelado.disabled = true;
 
-if(registro.parcela){
+    if (registro.recorrente) {
 
-    const partesParcela =
-        registro.parcela.split("/");
-
-    const quantidadeParcelas =
-        Number(partesParcela[1]);
-
-    parcelado.value = "sim";
-
-    areaParcelas.style.display = "block";
-
-    inputParcelas.value =
-        quantidadeParcelas;
-
-    inputParcelas.disabled = true;
-
-}
-else{
-
-    parcelado.value = "nao";
-
-    areaParcelas.style.display = "none";
-
-    inputParcelas.disabled = true;
-
-}
+        parcelado.value = "recorrente";
+    
+        areaParcelas.style.display = "none";
+    
+        inputParcelas.disabled = true;
+    
+    }
+    else if (registro.parcela) {
+    
+        const partesParcela =
+            registro.parcela.split("/");
+    
+        const quantidadeParcelas =
+            Number(partesParcela[1]);
+    
+        parcelado.value = "sim";
+    
+        areaParcelas.style.display = "block";
+    
+        inputParcelas.value =
+            quantidadeParcelas;
+    
+        inputParcelas.disabled = true;
+    
+    }
+    else {
+    
+        parcelado.value = "nao";
+    
+        areaParcelas.style.display = "none";
+    
+        inputParcelas.disabled = true;
+    
+    }
 
     idEdicao = id;
 
@@ -543,44 +723,78 @@ form.addEventListener("submit", (evento) => {
                 );
 
 
-        let opcao;
+                let opcao;
 
 
-        /* Se não for parcelado */
-
-        if (!registro.parcela || parcelasGrupo.length === 1) {
-
-            opcao = "esta";
-
-        }
-
-        else {
-
-            opcao = prompt(
-                "Como deseja aplicar a alteração?\n\n" +
-                "1 - Editar somente esta\n" +
-                "2 - Editar esta e as futuras\n" +
-                "3 - Editar todas as parcelas\n" +
-                "4 - Cancelar"
-            );
-
-
-            if (opcao === "4" || opcao === null) {
-
-                return;
-
-            }
-
-            if (!["1", "2", "3"].includes(opcao)) {
-
-                alert("Escolha uma opção válida.");
-
-                return;
-
-            }
-
-        }
-
+                /* =================================================
+                   EDIÇÃO DE RECORRÊNCIA
+                ================================================= */
+                
+                if (registro.recorrente) {
+                
+                    opcao = prompt(
+                        "Este lançamento faz parte de uma recorrência.\n\n" +
+                        "1 - Editar somente este mês\n" +
+                        "2 - Editar este mês e os próximos\n" +
+                        "3 - Editar toda a recorrência\n" +
+                        "4 - Cancelar"
+                    );
+                
+                    if (opcao === "4" || opcao === null) {
+                        return;
+                    }
+                
+                    if (!["1", "2", "3"].includes(opcao)) {
+                
+                        alert("Escolha uma opção válida.");
+                
+                        return;
+                
+                    }
+                
+                }
+                
+                
+                /* =================================================
+                   EDIÇÃO DE PARCELAS
+                ================================================= */
+                
+                else if (registro.parcela) {
+                
+                    opcao = prompt(
+                        "Como deseja aplicar a alteração?\n\n" +
+                        "1 - Editar somente esta\n" +
+                        "2 - Editar esta e as futuras\n" +
+                        "3 - Editar todas as parcelas\n" +
+                        "4 - Cancelar"
+                    );
+                
+                    if (opcao === "4" || opcao === null) {
+                
+                        return;
+                
+                    }
+                
+                    if (!["1", "2", "3"].includes(opcao)) {
+                
+                        alert("Escolha uma opção válida.");
+                
+                        return;
+                
+                    }
+                
+                }
+                
+                
+                /* =================================================
+                   LANÇAMENTO NORMAL
+                ================================================= */
+                
+                else {
+                
+                    opcao = "esta";
+                
+                }
 
         /* =================================================
            FUNÇÃO PARA APLICAR AS ALTERAÇÕES
@@ -613,128 +827,226 @@ form.addEventListener("submit", (evento) => {
         
         }
 
-        /* =================================================
-           SOMENTE ESTA PARCELA
-        ================================================= */
+            /* =================================================
+       EDIÇÃO SOMENTE DESTE LANÇAMENTO
+    ================================================= */
+    if (
+        registro.recorrente &&
+        opcao === "1"
+    ) {
 
-        if (opcao === "esta") {
+        aplicarAlteracoes(
+            registro,
+            agora,
+            !dataFoiAlterada
+        );
+
+    }
+
+    /* =================================================
+       EDIÇÃO DESTE MÊS + PRÓXIMOS
+    ================================================= */
+    else if (
+        registro.recorrente &&
+        opcao === "2"
+    ) {
+
+        aplicarAlteracoes(
+            registro,
+            agora,
+            !dataFoiAlterada
+        );
+
+        const recorrencias =
+            carregarRecorrencias();
+
+        const recorrencia =
+            recorrencias.find(item =>
+                String(item.id) ===
+                String(registro.recorrenciaId)
+            );
+
+        if (recorrencia) {
+
+            recorrencia.descricao = descricao;
+            recorrencia.valor = valor;
+            recorrencia.tipo = tipo;
+            recorrencia.categoria = categoria;
+            recorrencia.formaPagamento =
+                formaPagamento;
+            recorrencia.observacao = observacao;
+
+            if (dataFoiAlterada) {
+                recorrencia.dia =
+                    agora.getDate();
+            }
+
+            salvarRecorrencias(recorrencias);
+
+            parcelasGrupo
+                .filter(item =>
+                    new Date(item.data) >=
+                    dataOriginal
+                )
+                .forEach(item => {
+
+                    aplicarAlteracoes(
+                        item,
+                        new Date(item.data),
+                        true
+                    );
+
+                });
+
+        }
+
+    }
+
+    /* =================================================
+       EDIÇÃO DE TODA A RECORRÊNCIA
+    ================================================= */
+    else if (
+        registro.recorrente &&
+        opcao === "3"
+    ) {
+
+        const recorrencias =
+            carregarRecorrencias();
+
+        const recorrencia =
+            recorrencias.find(item =>
+                String(item.id) ===
+                String(registro.recorrenciaId)
+            );
+
+        if (recorrencia) {
+
+            recorrencia.descricao = descricao;
+            recorrencia.valor = valor;
+            recorrencia.tipo = tipo;
+            recorrencia.categoria = categoria;
+            recorrencia.formaPagamento =
+                formaPagamento;
+            recorrencia.observacao = observacao;
+
+            if (dataFoiAlterada) {
+                recorrencia.dia =
+                    agora.getDate();
+            }
+
+            salvarRecorrencias(recorrencias);
+
+        }
+
+        parcelasGrupo.forEach(item => {
 
             aplicarAlteracoes(
-                registro,
-                agora,
-                !dataFoiAlterada
+                item,
+                new Date(item.data),
+                true
             );
-        
-        }
 
-        /* =================================================
-           ESTA + FUTURAS
-        ================================================= */
+        });
 
-        else if (opcao === "2") {
+        aplicarAlteracoes(
+            registro,
+            agora,
+            !dataFoiAlterada
+        );
 
-            const indiceAtual =
-                parcelasGrupo.findIndex(
-                    item =>
-                        String(item.id) ===
-                        String(registro.id)
-                );
-        
-        
-            parcelasGrupo
-                .slice(indiceAtual)
-                .forEach((item, indice) => {
-        
-                    /*
-                     * Se a data não foi alterada,
-                     * mantém exatamente a data original
-                     * de cada parcela.
-                     */
-        
-                    if (!dataFoiAlterada) {
-        
-                        aplicarAlteracoes(
-                            item,
-                            new Date(item.data),
-                            true
-                        );
-        
-                        return;
-        
-                    }
-        
-        
-                    /*
-                     * Se a data foi alterada,
-                     * recalcula as parcelas futuras
-                     * a partir da nova data.
-                     */
-        
-                    const novaData =
-                        new Date(agora);
-        
-                    novaData.setMonth(
-                        novaData.getMonth() + indice
-                    );
-        
+    }
+
+    /* =================================================
+       EDIÇÃO NORMAL
+    ================================================= */
+    else if (opcao === "esta") {
+
+        aplicarAlteracoes(
+            registro,
+            agora,
+            !dataFoiAlterada
+        );
+
+    }
+
+    /* =================================================
+       EDIÇÃO DE PARCELAS
+    ================================================= */
+    else if (opcao === "2") {
+
+        const indiceAtual =
+            parcelasGrupo.findIndex(
+                item =>
+                    String(item.id) ===
+                    String(registro.id)
+            );
+
+        parcelasGrupo
+            .slice(indiceAtual)
+            .forEach((item, indice) => {
+
+                if (!dataFoiAlterada) {
+
                     aplicarAlteracoes(
                         item,
-                        novaData
+                        new Date(item.data),
+                        true
                     );
-        
-                });
-        
-        }
 
-        /* =================================================
-           TODAS AS PARCELAS
-        ================================================= */
-
-        else if (opcao === "3") {
-
-            parcelasGrupo.forEach(
-                (item, indice) => {
-        
-                    /*
-                     * Se a data não foi alterada,
-                     * mantém a data original de cada parcela.
-                     */
-        
-                    if (!dataFoiAlterada) {
-        
-                        aplicarAlteracoes(
-                            item,
-                            new Date(item.data),
-                            true
-                        );
-        
-                        return;
-        
-                    }
-        
-        
-                    /*
-                     * Se a data foi alterada,
-                     * reorganiza as datas das parcelas.
-                     */
-        
-                    const novaData =
-                        new Date(agora);
-        
-                    novaData.setMonth(
-                        novaData.getMonth() + indice
-                    );
-        
-                    aplicarAlteracoes(
-                        item,
-                        novaData
-                    );
-        
+                    return;
                 }
-            );
-        
-        }
 
+                const novaData =
+                    new Date(agora);
+
+                novaData.setMonth(
+                    novaData.getMonth() + indice
+                );
+
+                aplicarAlteracoes(
+                    item,
+                    novaData
+                );
+
+            });
+
+    }
+
+    /* =================================================
+       TODAS AS PARCELAS
+    ================================================= */
+    else if (opcao === "3") {
+
+        parcelasGrupo.forEach(
+            (item, indice) => {
+
+                if (!dataFoiAlterada) {
+
+                    aplicarAlteracoes(
+                        item,
+                        new Date(item.data),
+                        true
+                    );
+
+                    return;
+                }
+
+                const novaData =
+                    new Date(agora);
+
+                novaData.setMonth(
+                    novaData.getMonth() + indice
+                );
+
+                aplicarAlteracoes(
+                    item,
+                    novaData
+                );
+
+            }
+        );
+
+    }
 
         idEdicao = null;
 
@@ -794,65 +1106,111 @@ form.addEventListener("submit", (evento) => {
     }
 
 
-    const grupoID =
-        String(
-            Date.now() +
-            Math.random()
-        );
+    const grupoID = String(Date.now() + Math.random());
 
+if (parcelado.value === "sim") {
 
-    if (parcelado.value === "sim") {
+    criarParcelas({
+        dados,
+        grupoID,
+        descricao,
+        valor,
+        tipo,
+        categoria,
+        formaPagamento,
+        observacao,
+        agora
+    });
 
-        criarParcelas({
+} else if (parcelado.value === "recorrente") {
 
-            dados,
-            grupoID,
-            descricao,
-            valor,
-            tipo,
-            categoria,
-            formaPagamento,
-            observacao,
-            agora
+    const recorrencias = carregarRecorrencias();
 
-        });
+    recorrencias.push({
 
-    }
+        id: grupoID,
 
-    else {
+        descricao,
 
-        dados.push({
+        valor,
 
-            id:
-                String(gerarID()),
+        tipo,
 
-            grupo:
-                grupoID,
+        categoria,
 
-            descricao,
+        formaPagamento,
 
-            valor,
+        observacao,
 
-            tipo,
+        dia: agora.getDate(),
 
-            categoria,
+        inicio: agora.toISOString(),
 
-            formaPagamento,
+        excluidos: []
 
-            observacao,
+    });
 
-            parcela: "",
+    salvarRecorrencias(recorrencias);
 
-            status:
-                "pendente",
+    dados.push({
 
-            data:
-                agora.toISOString()
+        id: String(gerarID()),
 
-        });
+        grupo: grupoID,
 
-    }
+        recorrenciaId: grupoID,
 
+        recorrente: true,
+
+        descricao,
+
+        valor,
+
+        tipo,
+
+        categoria,
+
+        formaPagamento,
+
+        observacao,
+
+        parcela: "",
+
+        status: "pendente",
+
+        data: agora.toISOString()
+
+    });
+
+} else {
+
+    dados.push({
+
+        id: String(gerarID()),
+
+        grupo: grupoID,
+
+        descricao,
+
+        valor,
+
+        tipo,
+
+        categoria,
+
+        formaPagamento,
+
+        observacao,
+
+        parcela: "",
+
+        status: "pendente",
+
+        data: agora.toISOString()
+
+    });
+
+}
 
     salvarDados(dados);
 
@@ -1854,40 +2212,241 @@ function alterarStatus(id){
 
 function excluirRegistro(id){
 
+    const dados = carregarDados();
 
-    if(
-        !confirm(MSG_EXCLUIR_REGISTRO)
-    ){
+    const registro = encontrarRegistro(dados, id);
 
+    if (!registro) return;
+
+    // Se não for recorrente, mantém a exclusão normal
+    if (!registro.recorrente && !registro.parcela) {
+
+        const opcao = prompt(
+            "Este lançamento não possui repetição.\n\n" +
+            "1 - Excluir este lançamento\n" +
+            "2 - Cancelar"
+        );
+    
+        if (!opcao || opcao === "2") {
+            return;
+        }
+    
+        if (opcao === "1") {
+    
+            const novosDados =
+                dados.filter(item =>
+                    String(item.id) !== String(id)
+                );
+    
+            salvarDados(novosDados);
+    
+            renderizar();
+    
+            return;
+        }
+    
+        alert("Opção inválida.");
+    
         return;
-
     }
 
+    // Se for recorrente
+    const opcao = prompt(
+        "Este lançamento faz parte de uma recorrência.\n\n" +
+        "1 - Excluir somente este mês\n" +
+        "2 - Excluir os próximos\n" +
+        "3 - Excluir os anteriores\n" +
+        "4 - Excluir tudo\n" +
+        "5 - Cancelar"
+    );
 
+    if (!opcao || opcao === "5") {
+        return;
+    }
 
-    let dados =
-        carregarDados();
+    const dataRegistro =
+        new Date(registro.data);
 
+    const ano =
+        dataRegistro.getFullYear();
 
+    const mes =
+        dataRegistro.getMonth();
 
-    dados =
-        dados.filter(
-            item =>
-                String(item.id)
-                !==
-                String(id)
+    const chaveMes =
+        `${ano}-${String(mes + 1).padStart(2, "0")}`;
+
+    const recorrencias =
+        carregarRecorrencias();
+
+    const recorrencia =
+        recorrencias.find(item =>
+            String(item.id) ===
+            String(registro.recorrenciaId)
         );
 
+    if (!recorrencia) {
+        return;
+    }
 
+    // 1 - Somente este mês
+    if (opcao === "1") {
 
-        salvarDados(dados);
+        if (!recorrencia.excluidos) {
+            recorrencia.excluidos = [];
+        }
 
+        if (
+            !recorrencia.excluidos.includes(chaveMes)
+        ) {
+            recorrencia.excluidos.push(chaveMes);
+        }
 
-        atualizarInicio();
-        
-        
+        salvarRecorrencias(recorrencias);
+
+        salvarDados(
+            dados.filter(item =>
+                String(item.id) !== String(id)
+            )
+        );
+
         renderizar();
 
+        return;
+    }
+
+    // 2 - Este mês e os próximos
+    if (opcao === "2") {
+
+        const mesAnterior =
+            new Date(ano, mes - 1, 1);
+
+        const fim =
+            `${mesAnterior.getFullYear()}-${String(
+                mesAnterior.getMonth() + 1
+            ).padStart(2, "0")}`;
+
+        recorrencia.fim = fim;
+
+        salvarRecorrencias(recorrencias);
+
+        const novosDados =
+            dados.filter(item => {
+
+                if (
+                    String(item.recorrenciaId) !==
+                    String(registro.recorrenciaId)
+                ) {
+                    return true;
+                }
+
+                const dataItem =
+                    new Date(item.data);
+
+                return dataItem < dataRegistro;
+
+            });
+
+        salvarDados(novosDados);
+
+        renderizar();
+
+        return;
+    }
+
+    // 3 - Este mês e os anteriores
+    if (opcao === "3") {
+
+        if (!recorrencia.excluidos) {
+            recorrencia.excluidos = [];
+        }
+
+        const inicio =
+            new Date(recorrencia.inicio);
+
+        let anoAtual =
+            inicio.getFullYear();
+
+        let mesAtual =
+            inicio.getMonth();
+
+        while (
+            anoAtual < ano ||
+            (
+                anoAtual === ano &&
+                mesAtual <= mes
+            )
+        ) {
+
+            const chave =
+                `${anoAtual}-${String(
+                    mesAtual + 1
+                ).padStart(2, "0")}`;
+
+            if (
+                !recorrencia.excluidos.includes(chave)
+            ) {
+                recorrencia.excluidos.push(chave);
+            }
+
+            mesAtual++;
+
+            if (mesAtual > 11) {
+                mesAtual = 0;
+                anoAtual++;
+            }
+
+        }
+
+        salvarRecorrencias(recorrencias);
+
+        salvarDados(
+            dados.filter(item => {
+
+                if (
+                    String(item.recorrenciaId) !==
+                    String(registro.recorrenciaId)
+                ) {
+                    return true;
+                }
+
+                const dataItem =
+                    new Date(item.data);
+
+                return dataItem > dataRegistro;
+
+            })
+        );
+
+        renderizar();
+
+        return;
+    }
+
+    // 4 - Excluir tudo
+    if (opcao === "4") {
+
+        const novasRecorrencias =
+            recorrencias.filter(item =>
+                String(item.id) !==
+                String(registro.recorrenciaId)
+            );
+
+        salvarRecorrencias(novasRecorrencias);
+
+        salvarDados(
+            dados.filter(item =>
+                String(item.recorrenciaId) !==
+                String(registro.recorrenciaId)
+            )
+        );
+
+        renderizar();
+
+        return;
+    }
+
+    alert("Opção inválida.");
 
 }
 
@@ -1902,56 +2461,132 @@ function excluirRegistro(id){
 
 function excluirGrupo(id){
 
+    const dados = carregarDados();
 
-    const dados =
-        carregarDados();
+    const registro = encontrarRegistro(dados, id);
 
+    if (!registro) return;
 
-
-    const registro =
-        encontrarRegistro(
-            dados,
-            id
-        );
-
-
-
-    if(!registro){
-
+    if (!registro.parcela) {
+        excluirRegistro(id);
         return;
-
     }
 
+    const partes =
+        registro.parcela.split("/");
 
+    const numeroParcela =
+        Number(partes[0]);
 
-    if(
-        !confirm(MSG_EXCLUIR_GRUPO)
-    ){
+    const totalParcelas =
+        Number(partes[1]);
 
+    const opcao = prompt(
+        "Este lançamento faz parte de um parcelamento.\n\n" +
+        "1 - Excluir somente esta parcela\n" +
+        "2 - Excluir esta e as próximas\n" +
+        "3 - Excluir esta e as anteriores\n" +
+        "4 - Excluir todas as parcelas\n" +
+        "5 - Cancelar"
+    );
+
+    if (!opcao || opcao === "5") {
         return;
-
     }
 
+    const grupo =
+        String(registro.grupo);
 
+    // 1 - Somente esta parcela
+    if (opcao === "1") {
 
-    const novosDados =
-        dados.filter(
-            item =>
-                item.grupo
-                !==
-                registro.grupo
+        salvarDados(
+            dados.filter(item =>
+                String(item.id) !==
+                String(id)
+            )
         );
 
-
-
-        salvarDados(novosDados);
-
-
-        atualizarInicio();
-        
-        
         renderizar();
 
+        return;
+    }
+
+    // 2 - Esta e as próximas
+    if (opcao === "2") {
+
+        salvarDados(
+            dados.filter(item => {
+
+                if (
+                    String(item.grupo) !== grupo
+                ) {
+                    return true;
+                }
+
+                const partesItem =
+                    item.parcela
+                        ? item.parcela.split("/")
+                        : [];
+
+                const numero =
+                    Number(partesItem[0]);
+
+                return numero < numeroParcela;
+
+            })
+        );
+
+        renderizar();
+
+        return;
+    }
+
+    // 3 - Esta e as anteriores
+    if (opcao === "3") {
+
+        salvarDados(
+            dados.filter(item => {
+
+                if (
+                    String(item.grupo) !== grupo
+                ) {
+                    return true;
+                }
+
+                const partesItem =
+                    item.parcela
+                        ? item.parcela.split("/")
+                        : [];
+
+                const numero =
+                    Number(partesItem[0]);
+
+                return numero > numeroParcela;
+
+            })
+        );
+
+        renderizar();
+
+        return;
+    }
+
+    // 4 - Todas as parcelas
+    if (opcao === "4") {
+
+        salvarDados(
+            dados.filter(item =>
+                String(item.grupo) !== grupo
+            )
+        );
+
+        renderizar();
+
+        return;
+    }
+
+    alert("Opção inválida.");
 
 }
 
@@ -2047,13 +2682,14 @@ function iniciarApp(){
             hoje.getMonth() + 1
         ).padStart(2, "0");
 
-    atualizarMesExibido();
+        atualizarMesExibido();
 
-    atualizarInicio();
-
-    atualizarResumoInteligente();
-
-    renderizar();
+       
+        
+        atualizarInicio();
+        atualizarResumoInteligente();
+        
+        renderizar();
 
 }
 
@@ -2231,20 +2867,24 @@ if(botaoBackup){
 
     botaoBackup.addEventListener("click", () => {
 
+        
         const dados = carregarDados();
 
 const metas = carregarMetas();
+
+const recorrencias =
+    carregarRecorrencias();
 
 const arquivo =
     JSON.stringify(
         {
             lancamentos: dados,
-            metas: metas
+            metas: metas,
+            recorrencias: recorrencias
         },
         null,
         2
     );
-
         const blob =
             new Blob(
                 [arquivo],
@@ -2337,23 +2977,26 @@ if(arquivoBackup){
     );
 
 
-if(Array.isArray(dados)){
+    if(Array.isArray(dados)){
 
-    salvarDados(dados);
-
-}
-else{
-
-    salvarDados(
-        dados.lancamentos || []
-    );
-
-    salvarMetas(
-        dados.metas || []
-    );
-
-}
-
+        salvarDados(dados);
+    
+    }
+    else{
+    
+        salvarDados(
+            dados.lancamentos || []
+        );
+    
+        salvarMetas(
+            dados.metas || []
+        );
+    
+        salvarRecorrencias(
+            dados.recorrencias || []
+        );
+    
+    }
 
                 alert(
                     "Backup restaurado com sucesso!"
