@@ -10,6 +10,7 @@
     <title>Controle Financeiro</title>
 
     <link rel="stylesheet" href="css/estilo.css" />
+    <link rel="stylesheet" href="css/inicio.css" />
   </head>
 
       <!-- ========================================= -->
@@ -24,101 +25,57 @@
 
       <section id="telaInicio" class="tela ativa">
 
-        <div class="card">
+        <header class="inicioCabecalho">
+          <div>
+            <p class="inicioRotulo">Visão geral</p>
+            <h2 class="inicioTitulo">Resumo financeiro</h2>
+          </div>
+          <div class="inicioPeriodo">
+            <span id="mesAtualInicio"></span>
+            <span id="quantidadeInicio"></span>
+          </div>
+        </header>
 
+        <div class="inicioIndicadores">
+          <div class="inicioCartao inicioSaldo" id="saldoInicio">Saldo do mês: R$ 0,00</div>
+          <div class="inicioCartao inicioReceitas" id="receitasInicio">Receitas: R$ 0,00</div>
+          <div class="inicioCartao inicioDespesas" id="despesasInicio">Despesas: R$ 0,00</div>
+          <div class="inicioCartao inicioPendencias" id="pendenciasInicio">Pendentes do mês: R$ 0,00</div>
+        </div>
 
-            <div class="cabecalhoInicio">
-
-              <div class="tituloInicio">
-                  Resumo Financeiro
-              </div>
-            
-              <div id="mesAtualInicio" class="mesAtual"></div>
-            
-              <div id="quantidadeInicio" class="quantidade"></div>
-            
+        <div class="inicioPainel">
+          <h3 class="inicioPainelTitulo">Este mês</h3>
+          <div class="inicioMesLinhas">
+            <div class="inicioMesItem">
+              <span>Gastos</span>
+              <strong id="gastosMes">R$ 0,00</strong>
             </div>
-    
-            <div id="resumoInicio">
+            <div class="inicioMesItem">
+              <span>Receitas</span>
+              <strong id="receitasMes">R$ 0,00</strong>
+            </div>
+          </div>
+        </div>
 
-    <div class="resumo saldo" id="saldoInicio">
-        📊 Saldo atual: R$ 0,00
-    </div>
+        <div class="inicioGrade">
+          <div class="inicioPainel">
+            <div class="inicioPainelCabecalho">
+              <h3 class="inicioPainelTitulo">Gastos por forma de pagamento</h3>
+              <button type="button" class="inicioInfoBtn" aria-label="Mais informações" onclick="mostrarInfoResumo('pagamento')">i</button>
+            </div>
+            <div id="resumoPagamentos" class="inicioLista">Nenhum gasto registrado.</div>
+          </div>
 
-    <div class="resumo resumoReceitas" id="receitasInicio">
-        💰 Receitas: R$ 0,00
-    </div>
+          <div class="inicioPainel">
+            <div class="inicioPainelCabecalho">
+              <h3 class="inicioPainelTitulo">Gastos por categoria</h3>
+              <button type="button" class="inicioInfoBtn" aria-label="Mais informações" onclick="mostrarInfoResumo('categoria')">i</button>
+            </div>
+            <div id="resumoCategorias" class="inicioLista">Nenhum gasto registrado.</div>
+          </div>
+        </div>
 
-    <div class="resumo resumoDespesas" id="despesasInicio">
-        💸 Despesas: R$ 0,00
-    </div>
-
-    <div class="resumo resumoPendencias" id="pendenciasInicio">
-        ⚠️ Pendentes: R$ 0,00
-    </div>
-
-</div>
-    
-<div class="resumoInteligente">
-
-  <h3 class="tituloEsteMes">📆 Este mês</h3>
-
-  <div class="resumo resumoDespesas">
-      💸 Gastos: <span id="gastosMes">R$ 0,00</span>
-  </div>
-
-  <div class="resumo resumoReceitas">
-      💰 Receitas: <span id="receitasMes">R$ 0,00</span>
-  </div>
-
-
-  <div class="resumo">
-
-    <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-bottom:10px;">
-
-      <h4 style="margin:0;">💳 Gastos por forma de pagamento</h4>
-    
-      <button
-        type="button"
-        onclick="mostrarInfoResumo('pagamento')"
-        style="width:22px; height:22px; min-width:22px; border-radius:50%; background:#1976d2; color:white; font-weight:bold; font-size:13px; padding:0;">
-        i
-      </button>
-
-      </div>
-
-      <div 
-      id="resumoPagamentos">
-        Nenhum gasto registrado.
-    </div>
-
-  </div>
-
-
-  <div class="resumo">
-
-    <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-bottom:10px;">
-
-      <h4 style="margin:0;">🏷️ Gastos por categoria</h4>
-    
-      <button
-    type="button"
-    onclick="mostrarInfoResumo('categoria')"
-    style="width:22px; height:22px; min-width:22px; border-radius:50%; background:#1976d2; color:white; font-weight:bold; font-size:13px; padding:0;">
-    i
-      </button>
-    
-    </div>
-
-    <div id="resumoCategorias">
-      Nenhum gasto registrado.
-  </div>
-
-  </div>
-
-</div>
-    
-    </section>
+      </section>
 
      
 
