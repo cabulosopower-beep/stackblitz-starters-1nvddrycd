@@ -1585,29 +1585,55 @@ ${new Date(item.data).toLocaleDateString("pt-BR")}
 ========================================================== */
 
 
+
 function atualizarInicio(){
 
-
     const dados = carregarDados();
-
 
     let receitas = 0;
     let despesas = 0;
     let pendentes = 0;
+
+    let receitasAnterior = 0;
+    let despesasAnterior = 0;
 
     const hoje = new Date();
 
     const numeroMes = hoje.getMonth();
     const anoAtual = hoje.getFullYear();
 
+    const dataMesAnterior =
+        new Date(anoAtual, numeroMes - 1, 1);
+
+    const numeroMesAnterior =
+        dataMesAnterior.getMonth();
+
+    const anoMesAnterior =
+        dataMesAnterior.getFullYear();
+
+        const nomeMesOriginal =
+        hoje.toLocaleDateString("pt-BR", {
+            month: "long",
+            year: "numeric"
+        });
+    
     const nomeMes =
-        hoje.toLocaleDateString(
+        nomeMesOriginal.charAt(0).toUpperCase()
+        + nomeMesOriginal.slice(1);
+
+        const nomeMesAnteriorOriginal =
+        dataMesAnterior.toLocaleDateString(
             "pt-BR",
             {
                 month: "long",
                 year: "numeric"
             }
         );
+    
+    const nomeMesAnterior =
+        nomeMesAnteriorOriginal.charAt(0).toUpperCase()
+        + nomeMesAnteriorOriginal.slice(1);
+        
 
     if(mesAtualInicio){
 
@@ -1627,32 +1653,122 @@ function atualizarInicio(){
 
         const data = new Date(item.data);
 
+        const mes = data.getMonth();
+        const ano = data.getFullYear();
+
+        // MÊS ATUAL
+
         if(
-            data.getMonth() !== numeroMes ||
-            data.getFullYear() !== anoAtual
+            mes === numeroMes &&
+            ano === anoAtual
         ){
-            return;
+
+            if(item.tipo === "receita"){
+
+                receitas += Number(item.valor);
+
+            }
+
+            if(item.tipo === "despesa"){
+
+                despesas += Number(item.valor);
+
+                if(item.status === "pendente"){
+
+                    pendentes += Number(item.valor);
+
+                }
+
+            }
+
         }
 
-        if(item.tipo === "receita"){
+        // MÊS ANTERIOR
 
-            receitas += Number(item.valor);
+        if(
+            mes === numeroMesAnterior &&
+            ano === anoMesAnterior
+        ){
 
-        }
+            if(item.tipo === "receita"){
 
-        if(item.tipo === "despesa"){
+                receitasAnterior += Number(item.valor);
 
-            despesas += Number(item.valor);
+            }
 
-            if(item.status === "pendente"){
+            if(item.tipo === "despesa"){
 
-                pendentes += Number(item.valor);
+                despesasAnterior += Number(item.valor);
 
             }
 
         }
 
     });
+
+    // ATUALIZA COMPARATIVO
+
+    const mesAnteriorComparativo =
+        document.getElementById("mesAnteriorComparativo");
+
+    const mesAtualComparativo =
+        document.getElementById("mesAtualComparativo");
+
+    const gastosMesAnterior =
+        document.getElementById("gastosMesAnterior");
+
+    const receitasMesAnterior =
+        document.getElementById("receitasMesAnterior");
+
+    const gastosMesAtual =
+        document.getElementById("gastosMesAtual");
+
+    const receitasMesAtual =
+        document.getElementById("receitasMesAtual");
+
+    if(mesAnteriorComparativo){
+
+        mesAnteriorComparativo.innerHTML =
+            nomeMesAnterior;
+
+    }
+
+    if(mesAtualComparativo){
+
+        mesAtualComparativo.innerHTML =
+            nomeMes;
+
+    }
+
+    if(gastosMesAnterior){
+
+        gastosMesAnterior.innerHTML =
+            `R$ ${moeda(despesasAnterior)}`;
+
+    }
+
+    if(receitasMesAnterior){
+
+        receitasMesAnterior.innerHTML =
+            `R$ ${moeda(receitasAnterior)}`;
+
+    }
+
+    if(gastosMesAtual){
+
+        gastosMesAtual.innerHTML =
+            `R$ ${moeda(despesas)}`;
+
+    }
+
+    if(receitasMesAtual){
+
+        receitasMesAtual.innerHTML =
+            `R$ ${moeda(receitas)}`;
+
+    }
+
+    // RESUMO FINANCEIRO ATUAL
 
     const saldo = receitas - despesas;
 
@@ -1686,8 +1802,8 @@ function atualizarInicio(){
 
     atualizarResumoInteligente();
 
-
 }
+
 
 function atualizarResumoInteligente(){
 
@@ -1930,68 +2046,28 @@ function renderizar(){
 
 
 
-    if(buscar.value.trim() !== ""){
+    
+ if(buscar.value.trim() !== ""){
 
+    const normalizar = texto =>
+        String(texto ?? "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase();
 
-        const texto =
-            buscar.value
-                .toLowerCase()
-                .trim();
-    
-    
-    
-        dados =
-            dados.filter(item => {
-    
-    
-                const descricao =
-                    item.descricao
-                    ?.toLowerCase()
-                    || "";
-    
-    
-                const categoria =
-                    item.categoria
-                    ?.toLowerCase()
-                    || "";
-    
-    
-                const observacao =
-                    item.observacao
-                    ?.toLowerCase()
-                    || "";
-    
-    
-                const tipo =
-                    item.tipo
-                    ?.toLowerCase()
-                    || "";
-    
-    
-    
-                return (
-    
-                    descricao.includes(texto)
-    
-                    ||
-    
-                    categoria.includes(texto)
-    
-                    ||
-    
-                    observacao.includes(texto)
-    
-                    ||
-    
-                    tipo.includes(texto)
-    
-                );
-    
-    
-            });
-    
-    
-    }
+    const texto = normalizar(buscar.value.trim());
+
+    dados = dados.filter(item => {
+
+        const informacoes = normalizar(
+            JSON.stringify(item)
+        );
+
+        return informacoes.includes(texto);
+
+    });
+
+}
 
 
 
