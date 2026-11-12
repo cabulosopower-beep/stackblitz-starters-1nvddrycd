@@ -2770,7 +2770,40 @@ if(temaSalvo === "dark"){
 
 
 
-    function mostrarTela(id, botao = null){
+let telaExtraNoHistorico = false;
+
+function mostrarTela(id, botao = null){
+
+    if (id === "telaInicio") {
+
+        if (telaExtraNoHistorico) {
+            history.back();
+        }
+
+    } else if (!telaExtraNoHistorico) {
+
+        history.pushState({ tela: id }, "");
+        telaExtraNoHistorico = true;
+
+    } else {
+
+        history.replaceState({ tela: id }, "");
+
+    }
+
+    exibirTela(id, botao);
+
+}
+
+window.addEventListener("popstate", () => {
+
+    telaExtraNoHistorico = false;
+    exibirTela("telaInicio");
+
+});
+
+function exibirTela(id, botao = null){
+
 
         console.log("Mudando para:", id);
     
