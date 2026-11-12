@@ -1214,14 +1214,6 @@ body.dark .itemHistoricoMeta {
   text-align: center;
 }
 
-/* ==========================================================
-   AJUSTE DA CALCULADORA
-========================================================== */
-
-.botoesCalculadora button:first-child {
-  grid-column: span 2;
-}
-
 /* Botões do formulário de lançamento */
 
 .botoes {
