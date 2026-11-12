@@ -2,7 +2,7 @@
    TELA INICIAL
 ========================================================== */
 
-#telaInicio .inicioCabecalho {
+.tela .inicioCabecalho {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
@@ -11,7 +11,7 @@
   margin-bottom: 24px;
 }
 
-#telaInicio .inicioRotulo {
+.tela .inicioRotulo {
   margin: 0 0 4px;
   font-size: 13px;
   font-weight: 600;
@@ -20,7 +20,7 @@
   color: #64748b;
 }
 
-#telaInicio .inicioTitulo {
+.tela .inicioTitulo {
   margin: 0;
   font-size: 28px;
   font-weight: 700;
@@ -206,7 +206,7 @@
   color: #2563eb;
 }
 
-body.dark #telaInicio .inicioTitulo,
+body.dark .tela .inicioTitulo,
 body.dark #telaInicio .inicioPainelTitulo,
 body.dark #telaInicio .inicioMesItem strong,
 body.dark #telaInicio .inicioCartao,
@@ -214,7 +214,7 @@ body.dark #telaInicio .inicioLista .linhaResumo {
   color: #f1f5f9;
 }
 
-body.dark #telaInicio .inicioRotulo,
+body.dark .tela .inicioRotulo,
 body.dark #telaInicio .inicioMesItem,
 body.dark #telaInicio .inicioLista {
   color: #94a3b8;
@@ -240,7 +240,7 @@ body.dark #telaInicio .inicioInfoBtn {
 }
 
 @media (max-width: 600px) {
-  #telaInicio .inicioTitulo {
+  .tela .inicioTitulo {
     font-size: 24px;
   }
 
