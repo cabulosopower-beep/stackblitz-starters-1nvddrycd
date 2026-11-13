@@ -257,4 +257,206 @@ body.dark #telaInicio .inicioInfoBtn {
   }
 }
 
+/* ==========================================================
+   TRANSAÇÕES - MESMO PADRÃO VISUAL DA INÍCIO
+========================================================== */
 
+#telaResumo .resumo {
+  position: relative;
+  margin-bottom: 16px;
+  padding: 20px 20px 20px 24px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 12px rgba(15, 23, 42, 0.04);
+  color: #0f172a;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#telaResumo .resumo::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--cor-cartao, #94a3b8);
+}
+
+#telaResumo .resumo:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.05), 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+#telaResumo .resumoDespesas { --cor-cartao: #dc2626; color: #0f172a; }
+#telaResumo .resumoReceitas { --cor-cartao: #16a34a; color: #0f172a; }
+#telaResumo .saldo { --cor-cartao: #2563eb; color: #0f172a; }
+#telaResumo .resumoPendencias { --cor-cartao: #d97706; color: #0f172a; }
+
+#telaResumo .card {
+  padding: 20px;
+}
+
+#telaResumo .campoBusca,
+#telaResumo #ordenacao {
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #0f172a;
+  padding: 12px 14px;
+  font-size: 15px;
+  margin-bottom: 12px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#telaResumo .campoBusca:focus,
+#telaResumo #ordenacao:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+#telaResumo .btnMes {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  color: #334155;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+#telaResumo .btnMes:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+}
+
+#telaResumo #mesExibido {
+  font-size: 16px;
+  color: #0f172a;
+}
+
+#telaResumo #lista .transacao {
+  position: relative;
+  margin-bottom: 12px;
+  padding: 16px 16px 16px 20px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 12px rgba(15, 23, 42, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#telaResumo #lista .transacao:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.05), 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+#telaResumo #lista .transacao .titulo {
+  font-size: 15px;
+  color: #0f172a;
+}
+
+#telaResumo #lista .transacao .info {
+  font-size: 13px;
+  color: #64748b;
+}
+
+#telaResumo #lista .transacao .valorReceita,
+#telaResumo #lista .transacao .valorDespesa {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+#telaResumo #lista .transacao .valorReceita { color: #16a34a; }
+#telaResumo #lista .transacao .valorDespesa { color: #dc2626; }
+
+#telaResumo #lista .acoesTransacao {
+  margin-top: 12px;
+  align-items: center;
+}
+
+#telaResumo #lista .btnPagar,
+#telaResumo #lista .btnPago,
+#telaResumo #lista .btnEditar,
+#telaResumo #lista .btnExcluir {
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+#telaResumo #lista .btnPagar {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+#telaResumo #lista .btnPagar:hover {
+  background: #1d4ed8;
+}
+
+#telaResumo #lista .btnPago {
+  background: #dcfce7;
+  color: #166534;
+}
+
+#telaResumo #lista .btnMenu {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #cbd5e1;
+  background: #f1f5f9;
+  color: #334155;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+#telaResumo #lista .btnMenu:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+}
+
+body.dark #telaResumo .resumo,
+body.dark #telaResumo #lista .transacao {
+  background: #111827;
+  border-color: #1f2937;
+  color: #f1f5f9;
+}
+
+body.dark #telaResumo #lista .transacao .titulo,
+body.dark #telaResumo .resumo {
+  color: #f1f5f9;
+}
+
+body.dark #telaResumo #lista .transacao .info {
+  color: #94a3b8;
+}
+
+body.dark #telaResumo .campoBusca,
+body.dark #telaResumo #ordenacao {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+body.dark #telaResumo .btnMes,
+body.dark #telaResumo #lista .btnMenu {
+  background: #1e293b;
+  border-color: #334155;
+  color: #cbd5e1;
+}
+
+@media (max-width: 600px) {
+  #telaResumo #lista .acoesTransacao {
+    flex-wrap: wrap;
+  }
+}
