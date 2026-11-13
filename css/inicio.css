@@ -618,3 +618,237 @@ body.dark #telaLancamentos .botoes .btnCancelarEdicao {
   border-color: #334155;
   color: #cbd5e1;
 }
+
+/* ==========================================================
+   METAS - MESMO PADRÃO VISUAL DA INÍCIO
+========================================================== */
+
+#telaMetas .card,
+#telaDetalheMeta .card {
+  padding: 20px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 12px rgba(15, 23, 42, 0.04);
+  margin-bottom: 16px;
+}
+
+#telaMetas .card h3,
+#telaDetalheMeta .card h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 16px;
+}
+
+#telaMetas .btnNovaMeta,
+#telaMetas .btnSalvar,
+#telaDetalheMeta .btnSalvar {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#telaMetas .btnNovaMeta:hover,
+#telaDetalheMeta .btnSalvar:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+#listaMetas .cardMeta {
+  position: relative;
+  padding: 18px 18px 18px 22px;
+  margin-bottom: 12px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 12px rgba(15, 23, 42, 0.04);
+  color: #0f172a;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#listaMetas .cardMeta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.05), 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+#listaMetas .nomeMeta {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 12px;
+}
+
+#listaMetas .valorAtualMeta {
+  color: #16a34a;
+  font-weight: 700;
+}
+
+#listaMetas .valorFaltanteMeta {
+  color: #dc2626;
+}
+
+#listaMetas .valorObjetivoMeta {
+  color: #64748b;
+  font-size: 13px;
+}
+
+#listaMetas .barraMeta,
+#telaDetalheMeta .barraMeta {
+  height: 8px;
+  margin-top: 12px;
+  background: #e2e8f0;
+  border-radius: 999px;
+}
+
+#listaMetas .progressoMeta,
+#telaDetalheMeta .progressoMeta {
+  background: #2563eb;
+  border-radius: 999px;
+}
+
+#listaMetas .porcentagemMeta,
+#telaDetalheMeta .porcentagemMeta {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+#listaMetas .metaConcluida {
+  color: #16a34a;
+  font-weight: 700;
+}
+
+#telaDetalheMeta .btnVoltarMeta {
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  background: #f1f5f9;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+#telaDetalheMeta .btnVoltarMeta:hover {
+  background: #e2e8f0;
+}
+
+#telaDetalheMeta .resumoMetaDetalhe,
+#telaDetalheMeta #resumoMetaDetalhe .nomeMeta {
+  color: #0f172a;
+}
+
+#telaDetalheMeta #formAporteMeta label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+
+#telaDetalheMeta #formAporteMeta input {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 15px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#telaDetalheMeta #formAporteMeta input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+#telaDetalheMeta .itemHistoricoMeta {
+  padding: 12px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+#telaDetalheMeta .dataHistoricoMeta {
+  color: #64748b;
+  font-size: 13px;
+}
+
+#telaDetalheMeta .valorHistoricoMeta {
+  color: #16a34a;
+  font-weight: 700;
+}
+
+#telaDetalheMeta .btnExcluirMeta,
+#telaDetalheMeta .btnExcluirAporte {
+  border-radius: 12px;
+  background: #fee2e2;
+  color: #b91c1c;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+#telaDetalheMeta .btnExcluirMeta {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 16px;
+  font-size: 15px;
+}
+
+#telaDetalheMeta .btnExcluirMeta:hover,
+#telaDetalheMeta .btnExcluirAporte:hover {
+  background: #fecaca;
+}
+
+body.dark #telaMetas .card,
+body.dark #telaDetalheMeta .card,
+body.dark #listaMetas .cardMeta {
+  background: #111827;
+  border-color: #1f2937;
+  color: #f1f5f9;
+}
+
+body.dark #telaMetas .card h3,
+body.dark #telaDetalheMeta .card h3,
+body.dark #listaMetas .nomeMeta {
+  color: #f1f5f9;
+}
+
+body.dark #listaMetas .valorObjetivoMeta,
+body.dark #listaMetas .porcentagemMeta,
+body.dark #telaDetalheMeta .porcentagemMeta,
+body.dark #telaDetalheMeta .dataHistoricoMeta {
+  color: #94a3b8;
+}
+
+body.dark #listaMetas .barraMeta,
+body.dark #telaDetalheMeta .barraMeta {
+  background: #1e293b;
+}
+
+body.dark #telaDetalheMeta .btnVoltarMeta {
+  background: #1e293b;
+  color: #cbd5e1;
+}
+
+body.dark #telaDetalheMeta #formAporteMeta label {
+  color: #cbd5e1;
+}
+
+body.dark #telaDetalheMeta #formAporteMeta input {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+body.dark #telaDetalheMeta .itemHistoricoMeta {
+  border-color: #1f2937;
+}
