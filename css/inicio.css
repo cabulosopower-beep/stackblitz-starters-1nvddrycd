@@ -852,3 +852,108 @@ body.dark #telaDetalheMeta #formAporteMeta input {
 body.dark #telaDetalheMeta .itemHistoricoMeta {
   border-color: #1f2937;
 }
+
+/* ==========================================================
+   CONFIGURAÇÕES - MESMO PADRÃO VISUAL DA INÍCIO
+========================================================== */
+
+#telaConfiguracoes .card {
+  padding: 20px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 12px rgba(15, 23, 42, 0.04);
+  margin-bottom: 16px;
+}
+
+#telaConfiguracoes .listaConfig {
+  gap: 8px;
+}
+
+#telaConfiguracoes .itemConfig {
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 15px;
+  font-weight: 600;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+#telaConfiguracoes .itemConfig:hover {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  transform: translateX(2px);
+}
+
+#telaConfiguracoes .itemConfig span:last-child {
+  color: #94a3b8;
+  font-size: 20px;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+#telaConfiguracoes .itemConfig:hover span:last-child {
+  color: #2563eb;
+  transform: translateX(2px);
+}
+
+#telaConfiguracoes .sobreApp {
+  padding: 8px 0;
+}
+
+#telaConfiguracoes .sobreApp h2 {
+  color: #0f172a;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+#telaConfiguracoes .sobreApp p {
+  color: #2563eb;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+#telaConfiguracoes .sobreApp small {
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+body.dark #telaConfiguracoes .card {
+  background: #111827;
+  border-color: #1f2937;
+}
+
+body.dark #telaConfiguracoes .itemConfig {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+body.dark #telaConfiguracoes .itemConfig:hover {
+  background: #263449;
+  border-color: #3b82f6;
+}
+
+body.dark #telaConfiguracoes .itemConfig span:last-child {
+  color: #64748b;
+}
+
+body.dark #telaConfiguracoes .itemConfig:hover span:last-child {
+  color: #60a5fa;
+}
+
+body.dark #telaConfiguracoes .sobreApp h2 {
+  color: #f1f5f9;
+}
+
+body.dark #telaConfiguracoes .sobreApp p {
+  color: #60a5fa;
+}
+
+body.dark #telaConfiguracoes .sobreApp small {
+  color: #94a3b8;
+}
