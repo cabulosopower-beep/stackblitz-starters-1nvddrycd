@@ -459,6 +459,74 @@ body.dark #telaResumo #lista .btnMenu {
   color: #cbd5e1;
 }
 
+#telaResumo #lista .menuAcoes {
+  top: 44px;
+  min-width: 200px;
+  padding: 8px;
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+}
+
+#telaResumo #lista .menuAcoes.aberto {
+  display: flex;
+}
+
+#telaResumo #lista .menuAcoes button {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+#telaResumo #lista .menuAcoes button:hover {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+#telaResumo #lista .menuAcoes button:nth-child(n + 2) {
+  color: #b91c1c;
+}
+
+#telaResumo #lista .menuAcoes button:nth-child(n + 2):hover {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+body.dark #telaResumo #lista .menuAcoes {
+  background: #111827;
+  border-color: #1f2937;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+}
+
+body.dark #telaResumo #lista .menuAcoes button {
+  color: #f1f5f9;
+}
+
+body.dark #telaResumo #lista .menuAcoes button:hover {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+body.dark #telaResumo #lista .menuAcoes button:nth-child(n + 2) {
+  color: #fca5a5;
+}
+
+body.dark #telaResumo #lista .menuAcoes button:nth-child(n + 2):hover {
+  background: #3b171b;
+  border-color: #7f1d1d;
+}
+
 @media (max-width: 600px) {
   #telaResumo #lista .acoesTransacao {
     flex-wrap: wrap;
