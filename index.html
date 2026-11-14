@@ -234,7 +234,7 @@
                 Cancelar edição
             </button>
         
-            <button type="reset" class="btnLimpar">
+            <button type="button" class="btnLimpar" onclick="limparFormulario()">
                 Limpar
             </button>
         </div>
@@ -242,6 +242,7 @@
           <div id="mensagem"></div>
 
         </form>
+      </div>
     </section>
 
     <section id="telaResumo" class="tela">
@@ -351,7 +352,6 @@
 
         <div id="lista"></div>
       </div>
-    </div>
   </section>
   <!-- ========================================= -->
 <!-- METAS -->
@@ -623,6 +623,31 @@
     </h3>
 
     <p id="textoInfoResumo"></p>
+
+  </div>
+
+</div>
+
+<!-- MODAL PADRÃO DO APP -->
+
+<div id="modalApp" class="popupInfoResumo">
+
+  <div class="caixaInfoResumo caixaModalApp">
+
+    <button
+      type="button"
+      class="fecharInfoResumo"
+      id="modalFechar">
+      ×
+    </button>
+
+    <h3 id="modalTitulo"></h3>
+
+    <p id="modalTexto" class="modalTexto"></p>
+
+    <div id="modalCorpo"></div>
+
+    <div id="modalBotoes" class="modalBotoes"></div>
 
   </div>
 
