@@ -1939,14 +1939,14 @@ function renderizarCategorias() {
 
     categorias.forEach((categoria, index) => {
         const div = document.createElement("div");
-        div.className = "card";
+        div.className = "itemGerenciado";
 
         div.innerHTML = `
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
-                <strong>${categoria.icone} ${categoria.nome}</strong>
-                <div style="display:flex;gap:6px;">
-                    <button class="btnEditar" onclick="editarCategoria(${index})">✏️</button>
-                    <button class="btnExcluir" onclick="excluirCategoria(${index})">🗑️</button>
+            <div class="linhaGerenciado">
+                <strong class="nomeGerenciado">${categoria.icone} ${categoria.nome}</strong>
+                <div class="acoesGerenciado">
+                    <button onclick="editarCategoria(${index})">✏️</button>
+                    <button onclick="excluirCategoria(${index})">🗑️</button>
                 </div>
             </div>
         `;
@@ -2216,14 +2216,14 @@ function renderizarFormasPagamento() {
 
     formas.forEach((forma, index) => {
         const div = document.createElement("div");
-        div.className = "card";
+        div.className = "itemGerenciado";
 
         div.innerHTML = `
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
-                <strong>${forma.icone} ${forma.nome}</strong>
-                <div style="display:flex;gap:6px;">
-                    <button class="btnEditar" onclick="editarFormaPagamento(${index})">✏️</button>
-                    <button class="btnExcluir" onclick="excluirFormaPagamento(${index})">🗑️</button>
+            <div class="linhaGerenciado">
+                <strong class="nomeGerenciado">${forma.icone} ${forma.nome}</strong>
+                <div class="acoesGerenciado">
+                    <button onclick="editarFormaPagamento(${index})">✏️</button>
+                    <button onclick="excluirFormaPagamento(${index})">🗑️</button>
                 </div>
             </div>
         `;
