@@ -12,6 +12,16 @@ let idEdicao = null;
 
 const STORAGE_RECORRENTES = "controle_recorrencias";
 
+/* Limite máximo de caracteres dos campos (altere só os números se quiser ajustar) */
+const LIMITES_TEXTO = {
+    categoria: 25,
+    formaPagamento: 25,
+    meta: 40,
+    descricao: 50,
+    observacao: 100,
+    emoji: 6
+};
+
 const MSG_EXCLUIR_REGISTRO =
     "Deseja excluir este registro?";
 
@@ -245,6 +255,14 @@ function gerarID() {
    FUNÇÕES AUXILIARES
 ========================================================== */
 
+function dataHojeLocal() {
+    const hoje = new Date();
+    const ano = hoje.getFullYear();
+    const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+    const dia = String(hoje.getDate()).padStart(2, "0");
+    return `${ano}-${mes}-${dia}`;
+}
+
 function formatarData(data) {
     const dataObj = new Date(data);
     return (
@@ -321,6 +339,46 @@ function editarRegistro(id) {
     });
 }
 
+function duplicarRegistro(id) {
+    const dados = carregarDados();
+    const registro = encontrarRegistro(dados, id);
+    if (!registro) return;
+
+    limparFormulario();
+
+    inputDescricao.value = registro.descricao || "";
+    expressaoCalc = String(registro.valor).replace(".", ",");
+    inputValor.value = expressaoCalc;
+    atualizarTeclado();
+
+    inputDataLancamento.value = dataHojeLocal();
+    selectTipo.value = registro.tipo || "";
+    selectCategoria.value = registro.categoria || "";
+    selectFormaPagamento.value = registro.formaPagamento || "";
+    inputObservacao.value = registro.observacao || "";
+    parcelado.value = "nao";
+    areaParcelas.style.display = "none";
+
+    document.querySelectorAll(".menuAcoes").forEach(menu => {
+        menu.classList.remove("aberto");
+    });
+
+    mostrarTela("telaLancamentos");
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+
+function verObservacao(id) {
+    const dados = carregarDados();
+    const registro = encontrarRegistro(dados, id);
+    if (!registro || !registro.observacao) return;
+
+    abrirModalAviso(registro.observacao, "📝 Observação");
+}
+
 function moeda(valor) {
     return Number(valor).toLocaleString("pt-BR", {
         minimumFractionDigits: 2,
@@ -357,7 +415,7 @@ form.addEventListener("submit", async (evento) => {
     const valor = calcularExpressao(inputValor.value);
 
     if (valor === null || valor <= 0) {
-        alert("Digite um valor ou uma conta válida.");
+        abrirModalAviso("Digite um valor ou uma conta válida.");
         return;
     }
 
@@ -367,22 +425,22 @@ form.addEventListener("submit", async (evento) => {
     const formaPagamento = selectFormaPagamento.value;
 
     if (!tipo) {
-        alert("Selecione o tipo (Despesa ou Receita).");
+        abrirModalAviso("Selecione o tipo (Despesa ou Receita).");
         return;
     }
 
     if (!categoria) {
-        alert("Selecione uma categoria.");
+        abrirModalAviso("Selecione uma categoria.");
         return;
     }
 
     if (!parcelado.value) {
-        alert("Selecione a opção de repetição.");
+        abrirModalAviso("Selecione a opção de repetição.");
         return;
     }
 
     if (!idEdicao && parcelado.value === "sim" && (!inputParcelas.value || Number(inputParcelas.value) < 2)) {
-        alert("Digite uma quantidade de parcelas válida (mínimo 2).");
+        abrirModalAviso("Digite uma quantidade de parcelas válida (mínimo 2).");
         return;
     }
 
@@ -562,17 +620,22 @@ form.addEventListener("submit", async (evento) => {
        NOVO LANÇAMENTO
     ===================================================== */
 
-    const confirmar = confirm(
-        `Deseja salvar este lançamento?\n\n` +
-        `Descrição: ${descricao}\n` +
-        `Valor: R$ ${moeda(valor)}\n` +
-        `Categoria: ${categoria}\n` +
-        `Parcelado: ${
-            parcelado.value === "sim"
-                ? inputParcelas.value + "x"
-                : "Não"
-        }`
-    );
+    const tipoRepeticaoTexto =
+        parcelado.value === "sim"
+            ? inputParcelas.value + "x"
+            : parcelado.value === "recorrente"
+                ? "Recorrente"
+                : "Não";
+
+    const confirmar = await abrirModalConfirmacao({
+        titulo: "💾 Salvar lançamento",
+        texto:
+            `Descrição: ${descricao}\n` +
+            `Valor: R$ ${moeda(valor)}\n` +
+            `Categoria: ${categoria}\n` +
+            `Repetição: ${tipoRepeticaoTexto}`,
+        textoConfirmar: "Salvar"
+    });
 
     if (!confirmar) {
         return;
@@ -718,7 +781,7 @@ function limparFormulario() {
     parcelado.disabled = false;
     inputParcelas.value = "";
 
-    inputDataLancamento.value = new Date().toISOString().split("T")[0];
+    inputDataLancamento.value = dataHojeLocal();
     idEdicao = null;
 
     document.querySelector(".btnSalvar").innerText = "Salvar Registro";
@@ -777,7 +840,7 @@ function criarTransacao(item) {
 
         ${
             item.observacao && item.observacao.trim() !== ""
-                ? `<div class="info observacaoCompacta">📝 ${item.observacao}</div>`
+                ? `<div class="info observacaoCompacta" onclick="verObservacao('${item.id}')" title="Clique para ver completa">📝 ${item.observacao}</div>`
                 : ""
         }
 
@@ -800,12 +863,12 @@ function criarTransacao(item) {
                 <button onclick="editarRegistro('${item.id}')">
                     ✏️ Editar
                 </button>
+                <button onclick="duplicarRegistro('${item.id}')">
+                    📋 Duplicar
+                </button>
                 <button onclick="excluirRegistro('${item.id}')">
                     🗑️ Excluir
-                </button>
-                <button onclick="excluirGrupo('${item.id}')">
-                    🗑️ Excluir tudo
-                </button>
+                
             </div>
         </div>
     `;
@@ -897,10 +960,35 @@ function atualizarInicio() {
     if (receitasMesAnterior) receitasMesAnterior.innerHTML = `R$ ${moeda(receitasAnterior)}`;
     if (gastosMesAtual) gastosMesAtual.innerHTML = `R$ ${moeda(despesas)}`;
     if (receitasMesAtual) receitasMesAtual.innerHTML = `R$ ${moeda(receitas)}`;
+    const resumoComparativo = document.getElementById("resumoComparativo");
+    if (resumoComparativo) {
+        resumoComparativo.classList.remove("economia", "aumento");
+
+        if (despesasAnterior === 0 && despesas === 0) {
+            resumoComparativo.innerText = "";
+        } else if (despesasAnterior === 0 && despesas > 0) {
+            resumoComparativo.innerText = "📊 Primeiro mês com gastos registrados neste comparativo.";
+        } else {
+            const diferenca = despesas - despesasAnterior;
+
+            if (diferenca < 0) {
+                resumoComparativo.classList.add("economia");
+                resumoComparativo.innerText = `📉 Você gastou R$ ${moeda(Math.abs(diferenca))} a menos que no mês passado.`;
+            } else if (diferenca > 0) {
+                resumoComparativo.classList.add("aumento");
+                resumoComparativo.innerText = `📈 Você gastou R$ ${moeda(diferenca)} a mais que no mês passado.`;
+            } else {
+                resumoComparativo.innerText = "➖ Seus gastos estão iguais aos do mês passado.";
+            }
+        }
+    }
 
     const saldo = receitas - despesas;
 
-    if (saldoInicio) saldoInicio.innerHTML = `📊 Saldo do mês: R$ ${moeda(saldo)}`;
+    if (saldoInicio) {
+        saldoInicio.innerHTML = `📊 Saldo do mês: R$ ${moeda(saldo)}`;
+        saldoInicio.classList.toggle("saldoNegativo", saldo < 0);
+    }
     if (receitasInicio) receitasInicio.innerHTML = `💰 Receitas: R$ ${moeda(receitas)}`;
     if (despesasInicio) despesasInicio.innerHTML = `💸 Despesas: R$ ${moeda(despesas)}`;
     if (pendenciasInicio) pendenciasInicio.innerHTML = `⚠️ Pendentes do mês: R$ ${moeda(pendentes)}`;
@@ -926,8 +1014,9 @@ function atualizarResumoInteligente() {
             if (item.tipo === "despesa") {
                 gastos += Number(item.valor);
 
-                categorias[item.categoria] =
-                    (categorias[item.categoria] || 0) + Number(item.valor);
+                const nomeCategoria = item.categoria || "Sem categoria";
+                categorias[nomeCategoria] =
+                    (categorias[nomeCategoria] || 0) + Number(item.valor);
 
                 const pagamento = item.formaPagamento || "Não informado";
                 pagamentos[pagamento] =
@@ -1034,8 +1123,21 @@ function renderizar() {
         const texto = normalizar(buscar.value.trim());
 
         dados = dados.filter(item => {
-            const informacoes = normalizar(JSON.stringify(item));
-            return informacoes.includes(texto);
+            const dataFormatada = new Date(item.data).toLocaleDateString("pt-BR");
+            const camposBusca = [
+                item.descricao,
+                item.categoria,
+                item.formaPagamento,
+                item.observacao,
+                item.parcela,
+                item.status,
+                item.tipo,
+                dataFormatada,
+                String(item.valor),
+                moeda(item.valor)
+            ].join(" ");
+
+            return normalizar(camposBusca).includes(texto);
         });
     }
 
@@ -1069,7 +1171,9 @@ function renderizar() {
 
     totalDespesasMes.innerHTML = `💸 Total de despesas: R$ ${moeda(totalDespesas)}`;
     totalReceitasMes.innerHTML = `💰 Total de receitas: R$ ${moeda(totalReceitas)}`;
-    saldoMes.innerHTML = `📊 Saldo: R$ ${moeda(totalReceitas - totalDespesas)}`;
+    const saldoCalculado = totalReceitas - totalDespesas;
+    saldoMes.innerHTML = `📊 Saldo: R$ ${moeda(saldoCalculado)}`;
+    saldoMes.classList.toggle("saldoNegativo", saldoCalculado < 0);
     totalPendenteMes.innerHTML = `⚠️ Pendente: R$ ${moeda(totalPendente)}`;
 
     if (dados.length === 0) {
@@ -1115,7 +1219,9 @@ async function excluirRegistro(id) {
     const dados = carregarDados();
     const registro = encontrarRegistro(dados, id);
 
-    if (!registro) return;
+    document.querySelectorAll(".menuAcoes").forEach(menu => {
+        menu.classList.remove("aberto");
+    });
 
     if (registro.parcela) {
         excluirGrupo(id);
@@ -1125,12 +1231,12 @@ async function excluirRegistro(id) {
     if (!registro.recorrente && !registro.parcela) {
         const opcao = await abrirModalOpcoes({
             titulo: "🗑️ Excluir lançamento",
-            texto: "Tem certeza que deseja excluir este lançamento?",
+            texto: `Tem certeza que deseja excluir "${registro.descricao}" (R$ ${moeda(registro.valor)})?`,
             opcoes: [
                 { valor: "1", texto: "🗑️ Excluir este lançamento", perigo: true }
             ]
         });
-
+        
         if (!opcao) return;
 
         const novosDados = dados.filter(item => String(item.id) !== String(id));
@@ -1352,7 +1458,10 @@ function limparFiltro() {
 ========================================================== */
 
 function iniciarApp() {
-    inputDataLancamento.value = new Date().toISOString().split("T")[0];
+    if (inputDescricao) inputDescricao.maxLength = LIMITES_TEXTO.descricao;
+    if (inputObservacao) inputObservacao.maxLength = LIMITES_TEXTO.observacao;
+
+    inputDataLancamento.value = dataHojeLocal();
 
     const hoje = new Date();
     filtroMes.value =
@@ -1378,6 +1487,7 @@ iniciarApp();
 ========================================================== */
 
 const botaoTema = document.getElementById("toggleThemeConfig");
+const textoTema = botaoTema ? botaoTema.querySelector("span") : null;
 
 if (botaoTema) {
     botaoTema.addEventListener("click", () => {
@@ -1385,10 +1495,10 @@ if (botaoTema) {
 
         if (document.body.classList.contains("dark")) {
             localStorage.setItem("tema", "dark");
-            botaoTema.innerText = "☀️ Tema claro";
+            if (textoTema) textoTema.innerText = "☀️ Tema claro";
         } else {
             localStorage.setItem("tema", "light");
-            botaoTema.innerText = "🌙 Tema escuro";
+            if (textoTema) textoTema.innerText = "🌙 Tema Escuro";
         }
     });
 }
@@ -1397,8 +1507,8 @@ const temaSalvo = localStorage.getItem("tema");
 
 if (temaSalvo === "dark") {
     document.body.classList.add("dark");
-    if (botaoTema) {
-        botaoTema.innerText = "☀️ Tema claro";
+    if (textoTema) {
+        textoTema.innerText = "☀️ Tema claro";
     }
 }
 
@@ -1530,11 +1640,11 @@ if (arquivoBackup) {
                     salvarRecorrencias(dados.recorrencias || []);
                 }
 
-                alert("Backup restaurado com sucesso!");
+                abrirModalAviso("Backup restaurado com sucesso!", "✅ Sucesso");
                 atualizarInicio();
                 renderizar();
             } catch {
-                alert("Arquivo de backup inválido!");
+                abrirModalAviso("Arquivo de backup inválido!", "❌ Erro");
             }
         };
 
@@ -1569,7 +1679,8 @@ async function abrirFormularioMeta() {
             {
                 id: "nome",
                 label: "Nome da meta",
-                placeholder: "Ex: Reserva de emergência"
+                placeholder: "Ex: Reserva de emergência",
+                maxLength: LIMITES_TEXTO.meta
             },
             {
                 id: "valor",
@@ -1585,13 +1696,13 @@ async function abrirFormularioMeta() {
 
     const nome = resposta.nome;
     if (!nome || !nome.trim()) {
-        alert("Digite o nome da meta.");
+        abrirModalAviso("Digite o nome da meta.");
         return;
     }
 
     const valorTexto = resposta.valor;
     if (!valorTexto) {
-        alert("Digite o valor da meta.");
+        abrirModalAviso("Digite o valor da meta.");
         return;
     }
 
@@ -1600,7 +1711,7 @@ async function abrirFormularioMeta() {
     );
 
     if (!valorMeta || valorMeta <= 0) {
-        alert("Digite um valor de meta válido.");
+        abrirModalAviso("Digite um valor de meta válido.");
         return;
     }
 
@@ -1759,7 +1870,7 @@ if (formAporteMeta) {
         );
 
         if (!valor || valor <= 0) {
-            alert("Digite um valor válido.");
+            abrirModalAviso("Digite um valor válido.");
             return;
         }
 
@@ -1789,8 +1900,15 @@ if (formAporteMeta) {
     });
 }
 
-function excluirAporte(id) {
-    if (!confirm("Deseja excluir este valor?")) return;
+async function excluirAporte(id) {
+    const confirmar = await abrirModalConfirmacao({
+        titulo: "🗑️ Excluir valor",
+        texto: "Deseja excluir este valor da meta?",
+        textoConfirmar: "Excluir",
+        perigo: true
+    });
+
+    if (!confirmar) return;
 
     const metas = carregarMetas();
     const meta = metas.find(item => String(item.id) === String(metaAtualId));
@@ -1805,17 +1923,18 @@ function excluirAporte(id) {
     renderizarMetas();
 }
 
-function excluirMetaAtual() {
+async function excluirMetaAtual() {
     const meta = encontrarMeta(metaAtualId);
     if (!meta) return;
 
-    if (
-        !confirm(
-            `Deseja excluir a meta "${meta.nome}"?\n\nTodos os valores registrados nela também serão excluídos.`
-        )
-    ) {
-        return;
-    }
+    const confirmar = await abrirModalConfirmacao({
+        titulo: "🗑️ Excluir meta",
+        texto: `Deseja excluir a meta "${meta.nome}"?\n\nTodos os valores registrados nela também serão excluídos.`,
+        textoConfirmar: "Excluir meta",
+        perigo: true
+    });
+
+    if (!confirmar) return;
 
     let metas = carregarMetas();
     metas = metas.filter(item => String(item.id) !== String(metaAtualId));
@@ -1879,7 +1998,7 @@ function finalizarCalc() {
     const resultado = calcularExpressao(expressaoCalc);
 
     if (resultado === null) {
-        alert("Conta inválida.");
+        abrirModalAviso("Conta inválida.");
         return;
     }
 
@@ -1939,14 +2058,14 @@ function renderizarCategorias() {
 
     categorias.forEach((categoria, index) => {
         const div = document.createElement("div");
-        div.className = "itemGerenciado";
+        div.className = "card";
 
         div.innerHTML = `
-            <div class="linhaGerenciado">
-                <strong class="nomeGerenciado">${categoria.icone} ${categoria.nome}</strong>
-                <div class="acoesGerenciado">
-                    <button onclick="editarCategoria(${index})">✏️</button>
-                    <button onclick="excluirCategoria(${index})">🗑️</button>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                <strong>${categoria.icone} ${categoria.nome}</strong>
+                <div style="display:flex;gap:6px;">
+                    <button class="btnEditar" onclick="editarCategoria(${index})">✏️</button>
+                    <button class="btnExcluir" onclick="excluirCategoria(${index})">🗑️</button>
                 </div>
             </div>
         `;
@@ -1962,12 +2081,14 @@ async function adicionarCategoria() {
             {
                 id: "nome",
                 label: "Nome da categoria",
-                placeholder: "Ex: Educação"
+                placeholder: "Ex: Educação",
+                maxLength: LIMITES_TEXTO.categoria
             },
             {
                 id: "icone",
                 label: "Emoji (opcional)",
-                placeholder: "Ex: 📚"
+                placeholder: "Ex: 📚",
+                maxLength: LIMITES_TEXTO.emoji
             }
         ],
         textoConfirmar: "Salvar"
@@ -1976,7 +2097,7 @@ async function adicionarCategoria() {
     if (!resposta) return;
 
     if (!resposta.nome || !resposta.nome.trim()) {
-        alert("Digite o nome da categoria.");
+        abrirModalAviso("Digite o nome da categoria.");
         return;
     }
 
@@ -2002,12 +2123,14 @@ async function editarCategoria(index) {
             {
                 id: "nome",
                 label: "Nome da categoria",
-                valorInicial: nomeAntigo
+                valorInicial: nomeAntigo,
+                maxLength: LIMITES_TEXTO.categoria
             },
             {
                 id: "icone",
                 label: "Emoji (opcional)",
-                valorInicial: categoria.icone || ""
+                valorInicial: categoria.icone || "",
+                maxLength: LIMITES_TEXTO.emoji
             }
         ],
         textoConfirmar: "Atualizar"
@@ -2016,7 +2139,7 @@ async function editarCategoria(index) {
     if (!resposta) return;
 
     if (!resposta.nome || !resposta.nome.trim()) {
-        alert("Digite o nome da categoria.");
+        abrirModalAviso("Digite o nome da categoria.");
         return;
     }
 
@@ -2082,7 +2205,7 @@ async function excluirCategoria(index) {
         const outrasCategorias = categorias.filter((_, i) => i !== index);
 
         if (outrasCategorias.length === 0) {
-            alert("Não existe outra categoria para transferir os lançamentos.");
+            abrirModalAviso("Não existe outra categoria para transferir os lançamentos.");
             return;
         }
 
@@ -2216,14 +2339,14 @@ function renderizarFormasPagamento() {
 
     formas.forEach((forma, index) => {
         const div = document.createElement("div");
-        div.className = "itemGerenciado";
+        div.className = "card";
 
         div.innerHTML = `
-            <div class="linhaGerenciado">
-                <strong class="nomeGerenciado">${forma.icone} ${forma.nome}</strong>
-                <div class="acoesGerenciado">
-                    <button onclick="editarFormaPagamento(${index})">✏️</button>
-                    <button onclick="excluirFormaPagamento(${index})">🗑️</button>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                <strong>${forma.icone} ${forma.nome}</strong>
+                <div style="display:flex;gap:6px;">
+                    <button class="btnEditar" onclick="editarFormaPagamento(${index})">✏️</button>
+                    <button class="btnExcluir" onclick="excluirFormaPagamento(${index})">🗑️</button>
                 </div>
             </div>
         `;
@@ -2239,12 +2362,14 @@ async function adicionarFormaPagamento() {
             {
                 id: "nome",
                 label: "Nome da forma de pagamento",
-                placeholder: "Ex: Pix"
+                placeholder: "Ex: Pix",
+                maxLength: LIMITES_TEXTO.formaPagamento
             },
             {
                 id: "icone",
                 label: "Emoji (opcional)",
-                placeholder: "Ex: ⚡"
+                placeholder: "Ex: ⚡",
+                maxLength: LIMITES_TEXTO.emoji
             }
         ],
         textoConfirmar: "Salvar"
@@ -2253,7 +2378,7 @@ async function adicionarFormaPagamento() {
     if (!resposta) return;
 
     if (!resposta.nome || !resposta.nome.trim()) {
-        alert("Digite o nome da forma de pagamento.");
+        abrirModalAviso("Digite o nome da forma de pagamento.");
         return;
     }
 
@@ -2279,12 +2404,14 @@ async function editarFormaPagamento(index) {
             {
                 id: "nome",
                 label: "Nome da forma de pagamento",
-                valorInicial: nomeAntigo
+                valorInicial: nomeAntigo,
+                maxLength: LIMITES_TEXTO.formaPagamento
             },
             {
                 id: "icone",
                 label: "Emoji (opcional)",
-                valorInicial: forma.icone || ""
+                valorInicial: forma.icone || "",
+                maxLength: LIMITES_TEXTO.emoji
             }
         ],
         textoConfirmar: "Atualizar"
@@ -2293,7 +2420,7 @@ async function editarFormaPagamento(index) {
     if (!resposta) return;
 
     if (!resposta.nome || !resposta.nome.trim()) {
-        alert("Digite o nome da forma de pagamento.");
+        abrirModalAviso("Digite o nome da forma de pagamento.");
         return;
     }
 
@@ -2359,7 +2486,7 @@ async function excluirFormaPagamento(index) {
         const outrasFormas = formas.filter((_, i) => i !== index);
 
         if (outrasFormas.length === 0) {
-            alert("Não existe outra forma para transferir os lançamentos.");
+            abrirModalAviso("Não existe outra forma para transferir os lançamentos.");
             return;
         }
 
@@ -2522,12 +2649,17 @@ function abrirModalFormulario({ titulo, texto = "", campos = [], textoConfirmar 
             grupo.className = "modalCampo";
 
             const label = document.createElement("label");
-            label.innerText = campo.label;
+            label.innerText = campo.maxLength
+                ? `${campo.label} (máx. ${campo.maxLength})`
+                : campo.label;
 
             const input = document.createElement("input");
             input.type = campo.type || "text";
             input.value = campo.valorInicial || "";
             input.placeholder = campo.placeholder || "";
+            if (campo.maxLength) {
+                input.maxLength = campo.maxLength;
+            }
             if (campo.inputmode) {
                 input.setAttribute("inputmode", campo.inputmode);
             }
@@ -2585,6 +2717,95 @@ function abrirModalFormulario({ titulo, texto = "", campos = [], textoConfirmar 
         btnFechar.onclick = () => finalizar(null);
         modal.onclick = (e) => {
             if (e.target === modal) finalizar(null);
+        };
+
+        modal.style.display = "flex";
+    });
+}
+
+function abrirModalConfirmacao({
+    titulo = "Confirmação",
+    texto = "",
+    textoConfirmar = "Confirmar",
+    textoCancelar = "Cancelar",
+    perigo = false
+}) {
+    return new Promise((resolve) => {
+        const modal = document.getElementById("modalApp");
+        const elTitulo = document.getElementById("modalTitulo");
+        const elTexto = document.getElementById("modalTexto");
+        const elCorpo = document.getElementById("modalCorpo");
+        const elBotoes = document.getElementById("modalBotoes");
+        const btnFechar = document.getElementById("modalFechar");
+
+        elTitulo.innerText = titulo;
+        elTexto.innerText = texto;
+        elCorpo.innerHTML = "";
+        elBotoes.innerHTML = "";
+
+        const finalizar = (resultado) => {
+            modal.style.display = "none";
+            modal.onclick = null;
+            btnFechar.onclick = null;
+            resolve(resultado);
+        };
+
+        const btnCancelar = document.createElement("button");
+        btnCancelar.type = "button";
+        btnCancelar.className = "modalBtnCancelar";
+        btnCancelar.innerText = textoCancelar;
+        btnCancelar.onclick = () => finalizar(false);
+
+        const btnConfirmar = document.createElement("button");
+        btnConfirmar.type = "button";
+        btnConfirmar.className = perigo ? "modalBtnPerigo" : "modalBtnConfirmar";
+        btnConfirmar.innerText = textoConfirmar;
+        btnConfirmar.onclick = () => finalizar(true);
+
+        elBotoes.appendChild(btnCancelar);
+        elBotoes.appendChild(btnConfirmar);
+
+        btnFechar.onclick = () => finalizar(false);
+        modal.onclick = (e) => {
+            if (e.target === modal) finalizar(false);
+        };
+
+        modal.style.display = "flex";
+    });
+}
+
+function abrirModalAviso(texto, titulo = "⚠️ Atenção") {
+    return new Promise((resolve) => {
+        const modal = document.getElementById("modalApp");
+        const elTitulo = document.getElementById("modalTitulo");
+        const elTexto = document.getElementById("modalTexto");
+        const elCorpo = document.getElementById("modalCorpo");
+        const elBotoes = document.getElementById("modalBotoes");
+        const btnFechar = document.getElementById("modalFechar");
+
+        elTitulo.innerText = titulo;
+        elTexto.innerText = texto;
+        elCorpo.innerHTML = "";
+        elBotoes.innerHTML = "";
+
+        const finalizar = () => {
+            modal.style.display = "none";
+            modal.onclick = null;
+            btnFechar.onclick = null;
+            resolve();
+        };
+
+        const btnOk = document.createElement("button");
+        btnOk.type = "button";
+        btnOk.className = "modalBtnConfirmar";
+        btnOk.innerText = "OK";
+        btnOk.onclick = finalizar;
+
+        elBotoes.appendChild(btnOk);
+
+        btnFechar.onclick = finalizar;
+        modal.onclick = (e) => {
+            if (e.target === modal) finalizar();
         };
 
         modal.style.display = "flex";

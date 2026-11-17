@@ -1303,3 +1303,176 @@ body.dark .modalBtnCancelar {
   border-color: #334155;
   color: #cbd5e1;
 }
+
+.modalBtnPerigo {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.modalBtnPerigo:hover {
+  background: #b91c1c;
+}
+
+body.dark #textoInfoResumo {
+  color: #cbd5e1;
+}
+
+/* ==========================================================
+   CORREÇÕES DO MODO ESCURO (TEXTOS LEGÍVEIS)
+========================================================== */
+
+body.dark #telaResumo #mesExibido {
+  color: #f1f5f9;
+}
+
+body.dark #telaInicio .inicioLista .linhaResumo strong {
+  background: #1e3a8a;
+  color: #93c5fd;
+}
+
+body.dark #telaDetalheMeta #resumoMetaDetalhe {
+  color: #f1f5f9;
+}
+
+body.dark #telaDetalheMeta .valorAtualMeta {
+  color: #4ade80;
+}
+
+body.dark #telaDetalheMeta .valorFaltanteMeta {
+  color: #f87171;
+}
+
+body.dark .saldo {
+  color: #60a5fa;
+}
+
+body.dark .resultadoTeclado {
+  color: #60a5fa;
+}
+
+body.dark .sobreApp h2 {
+  color: #f1f5f9;
+}
+
+/* ==========================================================
+   CATEGORIAS E FORMAS DE PAGAMENTO (TEXTO E BOTÕES COMPACTOS)
+========================================================== */
+
+#listaCategorias .card > div,
+#listaFormasPagamento .card > div {
+  min-width: 0;
+}
+
+#listaCategorias strong,
+#listaFormasPagamento strong {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#listaCategorias .card > div > div,
+#listaFormasPagamento .card > div > div {
+  flex-shrink: 0;
+}
+
+#listaCategorias .btnEditar,
+#listaCategorias .btnExcluir,
+#listaFormasPagamento .btnEditar,
+#listaFormasPagamento .btnExcluir {
+  width: 42px;
+  height: 36px;
+  padding: 0;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+}
+
+#telaInicio .inicioLista .linhaResumo span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body.dark,
+body.dark input[type="date"] {
+  color-scheme: dark;
+}
+
+/* ==========================================================
+   SALDO NEGATIVO E META CONCLUÍDA
+========================================================== */
+
+#telaInicio .inicioSaldo.saldoNegativo,
+#telaResumo .saldo.saldoNegativo {
+  --cor-cartao: #dc2626;
+  color: #dc2626;
+}
+
+body.dark #telaInicio .inicioSaldo.saldoNegativo,
+body.dark #telaResumo .saldo.saldoNegativo {
+  color: #f87171;
+}
+
+#listaMetas .progressoMeta[style*="width:100%"],
+#telaDetalheMeta .progressoMeta[style*="width:100%"] {
+  background: #16a34a;
+}
+
+/* ==========================================================
+   FRASE AUTOMÁTICA DO COMPARATIVO MENSAL
+========================================================== */
+
+.resumoComparativo {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+}
+
+.resumoComparativo:empty {
+  display: none;
+}
+
+.resumoComparativo.economia {
+  background: #dcfce7;
+  color: #166534;
+  border-color: #bbf7d0;
+}
+
+.resumoComparativo.aumento {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+body.dark .resumoComparativo {
+  background: #1e293b;
+  color: #cbd5e1;
+  border-color: #334155;
+}
+
+body.dark .resumoComparativo.economia {
+  background: #052e16;
+  color: #86efac;
+  border-color: #166534;
+}
+
+body.dark .resumoComparativo.aumento {
+  background: #450a0a;
+  color: #fca5a5;
+  border-color: #991b1b;
+}
+
+#telaResumo #lista .observacaoCompacta {
+  cursor: pointer;
+}
