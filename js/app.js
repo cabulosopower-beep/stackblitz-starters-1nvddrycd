@@ -9,6 +9,7 @@
 
 const STORAGE = "controle_financeiro";
 let idEdicao = null;
+let mesInicioAtual = "";
 
 const STORAGE_RECORRENTES = "controle_recorrencias";
 
@@ -175,15 +176,15 @@ function salvarRecorrencias(recorrencias) {
     );
 }
 
-function gerarRecorrenciasDoMes() {
+function gerarRecorrenciasDoMes(mesAlvo = null) {
     const recorrencias = carregarRecorrencias();
     const dados = carregarDados();
 
     if (!recorrencias.length) return;
-    if (!filtroMes || !filtroMes.value) return;
+    const mesReferencia = mesAlvo || (filtroMes ? filtroMes.value : "");
+    if (!mesReferencia) return;
 
-    const [ano, mesNumero] = filtroMes.value.split("-").map(Number);
-    const mes = mesNumero - 1;
+    const [ano, mesNumero] = mesReferencia.split("-").map(Number);
 
     let alterou = false;
 
@@ -880,6 +881,31 @@ function criarTransacao(item) {
    ATUALIZAR TELA INICIAL
 ========================================================== */
 
+function obterDataInicioSelecionada() {
+    if (mesInicioAtual) {
+        const [ano, mes] = mesInicioAtual.split("-").map(Number);
+        return new Date(ano, mes - 1, 1);
+    }
+    const agora = new Date();
+    return new Date(agora.getFullYear(), agora.getMonth(), 1);
+}
+
+function mudarMesInicio(direcao) {
+    if (!mesInicioAtual) {
+        const agora = new Date();
+        mesInicioAtual = `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, "0")}`;
+    }
+
+    const [ano, mes] = mesInicioAtual.split("-").map(Number);
+    const data = new Date(ano, mes - 1, 1);
+    data.setMonth(data.getMonth() + direcao);
+
+    mesInicioAtual = `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, "0")}`;
+
+    gerarRecorrenciasDoMes(mesInicioAtual);
+    atualizarInicio();
+}
+
 function atualizarInicio() {
     const dados = carregarDados();
 
@@ -889,7 +915,7 @@ function atualizarInicio() {
     let receitasAnterior = 0;
     let despesasAnterior = 0;
 
-    const hoje = new Date();
+    const hoje = obterDataInicioSelecionada();
     const numeroMes = hoje.getMonth();
     const anoAtual = hoje.getFullYear();
 
@@ -994,11 +1020,14 @@ function atualizarInicio() {
     if (pendenciasInicio) pendenciasInicio.innerHTML = `⚠️ Pendentes do mês: R$ ${moeda(pendentes)}`;
 
     atualizarResumoInteligente();
+
+    verificarLembreteBackup();
+
 }
 
 function atualizarResumoInteligente() {
     const dados = carregarDados();
-    const hoje = new Date();
+    const hoje = obterDataInicioSelecionada();
     const mesAtual = hoje.getMonth();
     const anoAtual = hoje.getFullYear();
 
@@ -1050,19 +1079,49 @@ function atualizarResumoInteligente() {
 
     const resumoCategorias = document.getElementById("resumoCategorias");
     if (resumoCategorias) {
+        const categoriasCadastradas = JSON.parse(
+            localStorage.getItem("controle_categorias") || "[]"
+        );
+
         resumoCategorias.innerHTML =
             Object.entries(categorias)
                 .sort(([, a], [, b]) => b - a)
                 .map(([categoria, valor]) => {
-                    const porcentagem =
-                        gastos > 0 ? Math.round((valor / gastos) * 100) : 0;
+                    const catObj = categoriasCadastradas.find(c => c.nome === categoria);
+                    const limite = catObj && Number(catObj.limite) > 0 ? Number(catObj.limite) : 0;
+                    const porcentagemTotal = gastos > 0 ? Math.round((valor / gastos) * 100) : 0;
+
+                    let larguraBarra = porcentagemTotal;
+                    let classeLimite = "";
+                    let textoPorcentagem = `${porcentagemTotal}%`;
+                    let textoValor = `R$ ${moeda(valor)}`;
+
+                    if (limite > 0) {
+                        const pctLimite = Math.round((valor / limite) * 100);
+                        larguraBarra = Math.min((valor / limite) * 100, 100);
+                        textoValor = `R$ ${moeda(valor)} / ${moeda(limite)}`;
+                        textoPorcentagem = pctLimite > 100 ? `${pctLimite}% ⚠️` : `${pctLimite}%`;
+
+                        if (pctLimite > 100) {
+                            classeLimite = "limiteEstourou";
+                        } else if (pctLimite >= 80) {
+                            classeLimite = "limiteAtencao";
+                        } else {
+                            classeLimite = "limiteOk";
+                        }
+                    }
 
                     return `
-                        <div class="linhaResumo">
-                            <span>🏷️ ${categoria}</span>
-                            <span>
-                                R$ ${moeda(valor)}
-                                <strong>${porcentagem}%</strong>
+                        <div class="linhaResumo" onclick="abrirTransacoesFiltradas('${encodeURIComponent(categoria)}', 'despesas')">
+                            <span class="linhaResumoTopo">
+                                <span class="linhaResumoNome">🏷️ ${categoria}</span>
+                                <span class="linhaResumoValor">
+                                    ${textoValor}
+                                    <strong class="${classeLimite}">${textoPorcentagem}</strong>
+                                </span>
+                            </span>
+                            <span class="barraResumo">
+                                <span class="progressoResumo ${classeLimite}" style="width:${larguraBarra}%"></span>
                             </span>
                         </div>
                     `;
@@ -1080,22 +1139,69 @@ function atualizarResumoInteligente() {
                         gastos > 0 ? Math.round((valor / gastos) * 100) : 0;
 
                     return `
-                        <div class="linhaResumo">
-                            <span>💳 ${pagamento}</span>
-                            <span>
-                                R$ ${moeda(valor)}
-                                <strong>${porcentagem}%</strong>
+                    <div class="linhaResumo" onclick="abrirTransacoesFiltradas('${encodeURIComponent(pagamento)}', 'despesas')">
+                            <span class="linhaResumoTopo">
+                                <span class="linhaResumoNome">💳 ${pagamento}</span>
+                                <span class="linhaResumoValor">
+                                    R$ ${moeda(valor)}
+                                    <strong>${porcentagem}%</strong>
+                                </span>
+                            </span>
+                            <span class="barraResumo">
+                                <span class="progressoResumo" style="width:${porcentagem}%"></span>
                             </span>
                         </div>
                     `;
                 })
                 .join("") || "Nenhum gasto registrado.";
-    }
+    } 
 }
 
 /* ==========================================================
    RENDERIZAÇÃO DO HISTÓRICO
 ========================================================== */
+
+let filtroRapidoAtual = "todos";
+
+function abrirTransacoesFiltradas(textoCodificado, tipoFiltro = "todos") {
+    const hoje = new Date();
+    filtroMes.value = mesInicioAtual || `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}`;
+    atualizarMesExibido();
+
+    buscar.value = decodeURIComponent(textoCodificado);
+
+    const botoes = document.querySelectorAll(".btnFiltroRapido");
+    let botaoAlvo = botoes[0] || null;
+
+    botoes.forEach(btn => {
+        if (btn.getAttribute("onclick")?.includes(`'${tipoFiltro}'`)) {
+            botaoAlvo = btn;
+        }
+    });
+
+    definirFiltroRapido(tipoFiltro, botaoAlvo);
+    mostrarTela("telaResumo");
+}
+
+function limparFiltrosLista() {
+    buscar.value = "";
+    const primeiroBotao = document.querySelector(".btnFiltroRapido");
+    definirFiltroRapido("todos", primeiroBotao);
+}
+
+function definirFiltroRapido(tipo, botao) {
+    filtroRapidoAtual = tipo;
+
+    document.querySelectorAll(".btnFiltroRapido").forEach(btn => {
+        btn.classList.remove("ativo");
+    });
+
+    if (botao) {
+        botao.classList.add("ativo");
+    }
+
+    renderizar();
+}
 
 function renderizar() {
     let dados = carregarDados();
@@ -1126,8 +1232,8 @@ function renderizar() {
             const dataFormatada = new Date(item.data).toLocaleDateString("pt-BR");
             const camposBusca = [
                 item.descricao,
-                item.categoria,
-                item.formaPagamento,
+                item.categoria || "Sem categoria",
+                item.formaPagamento || "Não informado",
                 item.observacao,
                 item.parcela,
                 item.status,
@@ -1154,6 +1260,14 @@ function renderizar() {
         }
     });
 
+    if (filtroRapidoAtual === "pendentes") {
+        dados = dados.filter(item => item.status === "pendente");
+    } else if (filtroRapidoAtual === "despesas") {
+        dados = dados.filter(item => item.tipo === "despesa");
+    } else if (filtroRapidoAtual === "receitas") {
+        dados = dados.filter(item => item.tipo === "receita");
+    }
+
     dados.sort((a, b) => {
         if (ordenacao.value === "maiorValor") {
             return b.valor - a.valor;
@@ -1175,6 +1289,37 @@ function renderizar() {
     saldoMes.innerHTML = `📊 Saldo: R$ ${moeda(saldoCalculado)}`;
     saldoMes.classList.toggle("saldoNegativo", saldoCalculado < 0);
     totalPendenteMes.innerHTML = `⚠️ Pendente: R$ ${moeda(totalPendente)}`;
+
+    const resumoFiltroLista = document.getElementById("resumoFiltroLista");
+    if (resumoFiltroLista) {
+        const temFiltroAtivo = buscar.value.trim() !== "" || filtroRapidoAtual !== "todos";
+
+        if (!temFiltroAtivo) {
+            resumoFiltroLista.innerHTML = "";
+        } else {
+            let somaDespesas = 0;
+            let somaReceitas = 0;
+
+            dados.forEach(item => {
+                if (item.tipo === "receita") somaReceitas += Number(item.valor);
+                else somaDespesas += Number(item.valor);
+            });
+
+            let textoTotal = "";
+            if (somaReceitas > 0 && somaDespesas > 0) {
+                textoTotal = `Saldo: R$ ${moeda(somaReceitas - somaDespesas)}`;
+            } else if (somaReceitas > 0) {
+                textoTotal = `Total: R$ ${moeda(somaReceitas)}`;
+            } else {
+                textoTotal = `Total: R$ ${moeda(somaDespesas)}`;
+            }
+
+            resumoFiltroLista.innerHTML = `
+                <span>🔎 ${dados.length} registro(s) • <strong>${textoTotal}</strong></span>
+                <button type="button" class="btnLimparFiltroLista" onclick="limparFiltrosLista()">✕ Limpar</button>
+            `;
+        }
+    }
 
     if (dados.length === 0) {
         lista.innerHTML = "<p>Nenhum registro encontrado.</p>";
@@ -1469,6 +1614,8 @@ function iniciarApp() {
         "-" +
         String(hoje.getMonth() + 1).padStart(2, "0");
 
+    mesInicioAtual = filtroMes.value;
+    
     atualizarMesExibido();
     gerarRecorrenciasDoMes();
     atualizarInicio();
@@ -1605,6 +1752,10 @@ if (botaoBackup) {
         link.click();
 
         URL.revokeObjectURL(url);
+
+        localStorage.setItem("ultimo_backup_controle", String(Date.now()));
+        verificarLembreteBackup();
+
     });
 }
 
@@ -1641,6 +1792,8 @@ if (arquivoBackup) {
                 }
 
                 abrirModalAviso("Backup restaurado com sucesso!", "✅ Sucesso");
+                localStorage.setItem("ultimo_backup_controle", String(Date.now()));
+                verificarLembreteBackup();
                 atualizarInicio();
                 renderizar();
             } catch {
@@ -2060,9 +2213,17 @@ function renderizarCategorias() {
         const div = document.createElement("div");
         div.className = "card";
 
+        const limiteHtml =
+            categoria.limite && Number(categoria.limite) > 0
+                ? `<small class="limiteCategoriaInfo">🎯 Limite: R$ ${moeda(categoria.limite)}/mês</small>`
+                : "";
+
         div.innerHTML = `
             <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
-                <strong>${categoria.icone} ${categoria.nome}</strong>
+                <span style="min-width:0;flex:1;">
+                    <strong style="display:block;">${categoria.icone} ${categoria.nome}</strong>
+                    ${limiteHtml}
+                </span>
                 <div style="display:flex;gap:6px;">
                     <button class="btnEditar" onclick="editarCategoria(${index})">✏️</button>
                     <button class="btnExcluir" onclick="excluirCategoria(${index})">🗑️</button>
@@ -2089,6 +2250,12 @@ async function adicionarCategoria() {
                 label: "Emoji (opcional)",
                 placeholder: "Ex: 📚",
                 maxLength: LIMITES_TEXTO.emoji
+            },
+            {
+                id: "limite",
+                label: "Limite mensal R$ (opcional)",
+                placeholder: "Ex: 500,00",
+                inputmode: "decimal"
             }
         ],
         textoConfirmar: "Salvar"
@@ -2101,10 +2268,21 @@ async function adicionarCategoria() {
         return;
     }
 
+    let limite = 0;
+    const limiteTexto = (resposta.limite || "").trim();
+    if (limiteTexto !== "") {
+        limite = Number(limiteTexto.replace(/\./g, "").replace(",", "."));
+        if (!Number.isFinite(limite) || limite < 0) {
+            abrirModalAviso("Digite um valor de limite válido (ou deixe em branco).");
+            return;
+        }
+    }
+
     const categorias = carregarCategorias();
     categorias.push({
         nome: resposta.nome.trim(),
-        icone: (resposta.icone || "").trim()
+        icone: (resposta.icone || "").trim(),
+        limite: limite
     });
 
     salvarCategorias(categorias);
@@ -2131,6 +2309,13 @@ async function editarCategoria(index) {
                 label: "Emoji (opcional)",
                 valorInicial: categoria.icone || "",
                 maxLength: LIMITES_TEXTO.emoji
+            },
+            {
+                id: "limite",
+                label: "Limite mensal R$ (opcional)",
+                placeholder: "Deixe vazio para sem limite",
+                valorInicial: categoria.limite && Number(categoria.limite) > 0 ? moeda(categoria.limite) : "",
+                inputmode: "decimal"
             }
         ],
         textoConfirmar: "Atualizar"
@@ -2143,9 +2328,20 @@ async function editarCategoria(index) {
         return;
     }
 
+    let limite = 0;
+    const limiteTexto = (resposta.limite || "").trim();
+    if (limiteTexto !== "") {
+        limite = Number(limiteTexto.replace(/\./g, "").replace(",", "."));
+        if (!Number.isFinite(limite) || limite < 0) {
+            abrirModalAviso("Digite um valor de limite válido (ou deixe em branco).");
+            return;
+        }
+    }
+
     const nomeNovo = resposta.nome.trim();
     categoria.nome = nomeNovo;
     categoria.icone = (resposta.icone || "").trim();
+    categoria.limite = limite;
 
     salvarCategorias(categorias);
 
@@ -2162,6 +2358,8 @@ async function editarCategoria(index) {
     atualizarInicio();
     renderizar();
 }
+
+
 
 async function excluirCategoria(index) {
     const categorias = carregarCategorias();
@@ -2810,4 +3008,141 @@ function abrirModalAviso(texto, titulo = "⚠️ Atenção") {
 
         modal.style.display = "flex";
     });
+}
+
+/* ==========================================================
+   MODO PRIVACIDADE (OLHINHO)
+========================================================== */
+
+function atualizarBotaoPrivacidade() {
+    const btn = document.getElementById("btnPrivacidade");
+    if (!btn) return;
+
+    const oculto = document.body.classList.contains("valoresOcultos");
+    btn.innerText = oculto ? "🙈" : "👁️";
+    btn.title = oculto ? "Mostrar valores" : "Ocultar valores";
+}
+
+function alternarPrivacidade() {
+    document.body.classList.toggle("valoresOcultos");
+    const oculto = document.body.classList.contains("valoresOcultos");
+    localStorage.setItem("ocultarValores", oculto ? "sim" : "nao");
+    atualizarBotaoPrivacidade();
+}
+
+if (localStorage.getItem("ocultarValores") === "sim") {
+    document.body.classList.add("valoresOcultos");
+    atualizarBotaoPrivacidade();
+}
+
+/* ==========================================================
+   EXPORTAR PLANILHA (EXCEL / CSV)
+========================================================== */
+
+function exportarCSV() {
+    const dados = carregarDados();
+
+    if (!dados.length) {
+        abrirModalAviso("Não há lançamentos para exportar ainda.");
+        return;
+    }
+
+    const escaparCSV = (texto) => {
+        const limpo = String(texto ?? "").replace(/\r?\n/g, " ");
+        return `"${limpo.replace(/"/g, '""')}"`;
+    };
+
+    const cabecalho = [
+        "Data",
+        "Descrição",
+        "Tipo",
+        "Categoria",
+        "Forma de Pagamento",
+        "Parcela",
+        "Valor (R$)",
+        "Status",
+        "Observação"
+    ].join(";");
+
+    const ordenados = [...dados].sort(
+        (a, b) => new Date(b.data) - new Date(a.data)
+    );
+
+    const linhas = ordenados.map(item => {
+        const dataBr = new Date(item.data).toLocaleDateString("pt-BR");
+        const tipoTexto = item.tipo === "receita" ? "Receita" : "Despesa";
+        const statusTexto = item.status === "pago" ? "Pago" : "Pendente";
+        const valorFormatado = Number(item.valor).toFixed(2).replace(".", ",");
+
+        return [
+            escaparCSV(dataBr),
+            escaparCSV(item.descricao),
+            escaparCSV(tipoTexto),
+            escaparCSV(item.categoria || "Sem categoria"),
+            escaparCSV(item.formaPagamento || "Não informado"),
+            escaparCSV(item.parcela || (item.recorrente ? "Recorrente" : "-")),
+            escaparCSV(valorFormatado),
+            escaparCSV(statusTexto),
+            escaparCSV(item.observacao || "")
+        ].join(";");
+    });
+
+    const conteudoCSV = "\uFEFF" + [cabecalho, ...linhas].join("\n");
+    const blob = new Blob([conteudoCSV], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = `controle_financeiro_${dataHojeLocal()}.csv`;
+    link.click();
+
+    URL.revokeObjectURL(url);
+}
+
+/* ==========================================================
+   LEMBRETE AUTOMÁTICO DE BACKUP
+========================================================== */
+
+function verificarLembreteBackup() {
+    const aviso = document.getElementById("avisoBackup");
+    if (!aviso) return;
+
+    const dados = carregarDados();
+    if (dados.length < 3) {
+        aviso.style.display = "none";
+        return;
+    }
+
+    const diasLimite = 15;
+    const ultimo = localStorage.getItem("ultimo_backup_controle");
+    const agora = Date.now();
+    const limiteMs = diasLimite * 24 * 60 * 60 * 1000;
+
+    if (!ultimo) {
+        aviso.style.display = "flex";
+        aviso.querySelector(".textoAvisoBackup").innerText =
+            "💾 Você ainda não fez um backup. Salve uma cópia dos seus dados!";
+        return;
+    }
+
+    const diasSemBackup = Math.floor((agora - Number(ultimo)) / (24 * 60 * 60 * 1000));
+
+    if (agora - Number(ultimo) >= limiteMs) {
+        aviso.style.display = "flex";
+        aviso.querySelector(".textoAvisoBackup").innerText =
+            `💾 Faz ${diasSemBackup} dia(s) que você não faz backup dos seus dados.`;
+    } else {
+        aviso.style.display = "none";
+    }
+}
+
+function fazerBackupAgora() {
+    const btn = document.getElementById("btnBackup");
+    if (btn) btn.click();
+}
+
+function adiarLembreteBackup() {
+    const oitoDiasAtras = Date.now() - 8 * 24 * 60 * 60 * 1000;
+    localStorage.setItem("ultimo_backup_controle", String(oitoDiasAtras));
+    verificarLembreteBackup();
 }

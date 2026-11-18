@@ -19,7 +19,17 @@
       
       <body>
 
-        <h1>💰 Controle Financeiro</h1>
+        <div class="topoApp">
+          <h1>💰 Controle Financeiro</h1>
+          <button
+            type="button"
+            id="btnPrivacidade"
+            class="btnPrivacidade"
+            onclick="alternarPrivacidade()"
+            aria-label="Ocultar ou mostrar valores"
+            title="Ocultar valores"
+          >👁️</button>
+        </div>
       
         <div class="container">
 
@@ -31,10 +41,22 @@
             <h2 class="inicioTitulo">Resumo financeiro</h2>
           </div>
           <div class="inicioPeriodo">
-            <span id="mesAtualInicio"></span>
+            <div class="inicioSeletorMes">
+              <button type="button" class="btnMesInicio" onclick="mudarMesInicio(-1)" aria-label="Mês anterior">◀</button>
+              <span id="mesAtualInicio"></span>
+              <button type="button" class="btnMesInicio" onclick="mudarMesInicio(1)" aria-label="Próximo mês">▶</button>
+            </div>
             <span id="quantidadeInicio"></span>
           </div>
         </header>
+
+        <div id="avisoBackup" class="avisoBackup" style="display:none;">
+          <span class="textoAvisoBackup"></span>
+          <div class="acoesAvisoBackup">
+            <button type="button" class="btnBackupAviso" onclick="fazerBackupAgora()">Salvar backup</button>
+            <button type="button" class="btnAdiarBackup" onclick="adiarLembreteBackup()">Depois</button>
+          </div>
+        </div>
 
         <div class="inicioIndicadores">
           <div class="inicioCartao inicioSaldo" id="saldoInicio">Saldo do mês: R$ 0,00</div>
@@ -349,6 +371,15 @@
           <option value="pendente">Pendentes primeiro</option>
         </select>
 
+        <div class="filtrosRapidos" id="filtrosRapidos">
+          <button type="button" class="btnFiltroRapido ativo" onclick="definirFiltroRapido('todos', this)">Todos</button>
+          <button type="button" class="btnFiltroRapido" onclick="definirFiltroRapido('pendentes', this)">Pendentes</button>
+          <button type="button" class="btnFiltroRapido" onclick="definirFiltroRapido('despesas', this)">Despesas</button>
+          <button type="button" class="btnFiltroRapido" onclick="definirFiltroRapido('receitas', this)">Receitas</button>
+        </div>
+
+        <div id="resumoFiltroLista" class="resumoFiltroLista"></div>
+
         <div id="lista"></div>
       </div>
   </section>
@@ -490,6 +521,11 @@
               <span>📂 Restaurar Backup</span>
               <span>›</span>
           </button>
+
+          <button class="itemConfig" id="btnExportarCSV" onclick="exportarCSV()">
+            <span>📊 Exportar Planilha (Excel/CSV)</span>
+            <span>›</span>
+        </button>
   
           <button class="itemConfig" id="toggleThemeConfig">
               <span>🌙 Tema Escuro</span>
