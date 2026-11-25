@@ -1,12 +1,19 @@
-const CACHE_NAME = "controle-financeiro-v9";
+const CACHE_NAME = "controle-financeiro-v10";
 
 const arquivos = [
     "./",
     "./index.html",
     "./manifest.json",
-    "./css/estilo.css?v=9",
-    "./css/inicio.css?v=9",
-    "./js/app.js?v=9",
+    "./css/estilo.css?v=10",
+    "./css/inicio.css?v=10",
+    "./js/config.js?v=10",
+    "./js/modais.js?v=10",
+    "./js/inicio.js?v=10",
+    "./js/lancamentos.js?v=10",
+    "./js/transacoes.js?v=10",
+    "./js/metas.js?v=10",
+    "./js/configuracoes.js?v=10",
+    "./js/app.js?v=10",
     "./icons/icon-192.png",
     "./icons/icon-512.png"
 ];
